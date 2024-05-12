@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'item.dart';
 import 'cart.dart';
 import 'package:fluro/fluro.dart';
@@ -377,27 +378,52 @@ class _MyChooserState extends State<Chooser> {
                   child: ElevatedButton(
                       child: Text("+"),
                       onPressed: () {
-                        Scaffold.of(context).showBottomSheet((context) {
-                          return Container(
-                              height: 200,
-                              color: Colors.amber,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    const Text(
-                                        'Hello from Persistent Bottom Sheet'),
-                                    ElevatedButton(
-                                      child: const Text('Close BottomSheet'),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
+                        showMaterialModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return Container(
+                                  height: 600,
+                                  color: Colors.white,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Image.asset(
+                                          filteredItems[position].img,
+                                          fit: BoxFit.contain,
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        FittedBox(
+                                            fit: BoxFit.fitWidth,
+                                            child: Text(
+                                                filteredItems[position].name,
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        SizedBox(
+                                          height: 50,
+                                        ),
+                                        const Text('Customize'),
+                                         SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold),),
+                                        
+                                        ElevatedButton(
+                                          child:
+                                              const Text('Close'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ));
-                        });
+                                  ));
+                            });
                         // setState(() {
                         //   itemCart[position].add();
                         // });
