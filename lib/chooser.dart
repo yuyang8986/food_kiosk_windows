@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/components/CustomizeItemSheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'item.dart';
 import 'cart.dart';
@@ -376,58 +379,69 @@ class _MyChooserState extends State<Chooser> {
                   height: 25.0,
                   buttonColor: Color.fromRGBO(230, 203, 51, 1),
                   child: ElevatedButton(
-                      child: Text("+"),
-                      onPressed: () {
-                        showMaterialModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return Container(
-                                  height: 600,
-                                  color: Colors.white,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Image.asset(
-                                          filteredItems[position].img,
-                                          fit: BoxFit.contain,
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Text(
-                                                filteredItems[position].name,
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))),
-                                        SizedBox(
-                                          height: 50,
-                                        ),
-                                        const Text('Customize'),
-                                         SizedBox(
-                                          height: 20,
-                                        ),
-                                        Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold),),
-                                        
-                                        ElevatedButton(
-                                          child:
-                                              const Text('Close'),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ));
-                            });
-                        // setState(() {
-                        //   itemCart[position].add();
-                        // });
-                      }),
+                    child: Text("+"),
+                    // onPressed: () {
+                    //   showMaterialModalBottomSheet(
+                    //       context: context,
+                    //       builder: (context) {
+                    //         return Container(
+                    //             height: 600,
+                    //             color: Colors.white,
+                    //             child: Center(
+                    //               child: Column(
+                    //                 mainAxisAlignment:
+                    //                     MainAxisAlignment.spaceAround,
+                    //                 mainAxisSize: MainAxisSize.min,
+                    //                 children: <Widget>[
+                    //                   Image.asset(
+                    //                     filteredItems[position].img,
+                    //                     fit: BoxFit.contain,
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height: 20,
+                    //                   ),
+                    //                   FittedBox(
+                    //                       fit: BoxFit.fitWidth,
+                    //                       child: Text(
+                    //                           filteredItems[position].name,
+                    //                           style: TextStyle(
+                    //                               fontWeight:
+                    //                                   FontWeight.bold))),
+                    //                   SizedBox(
+                    //                     height: 50,
+                    //                   ),
+                    //                   const Text('Customize'),
+                    //                    SizedBox(
+                    //                     height: 20,
+                    //                   ),
+                    //                   Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold),),
+
+                    //                   ElevatedButton(
+                    //                     child:
+                    //                         const Text('Close'),
+                    //                     onPressed: () {
+                    //                       Navigator.pop(context);
+                    //                     },
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ));
+                    //       });
+                    //   // setState(() {
+                    //   //   itemCart[position].add();
+                    //   // });
+                    // }
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CustomizeItemSheet(
+                              item: filteredItems[position],
+                              position: position);
+                        },
+                      );
+                    },
+                  ),
                   shape: RoundedRectangleBorder(
                       borderRadius: new BorderRadius.circular(12.0))),
             ],
