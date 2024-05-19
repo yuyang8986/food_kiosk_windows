@@ -433,11 +433,15 @@ class _MyChooserState extends State<Chooser> {
                     // }
                     onPressed: () {
                       showModalBottomSheet(
+                        isScrollControlled: true,
                         context: context,
                         builder: (BuildContext context) {
-                          return CustomizeItemSheet(
-                              item: filteredItems[position],
-                              position: position);
+                          return Container(
+                            // height: 1200,
+                            child: CustomizeItemSheet(
+                                item: filteredItems[position],
+                                position: position),
+                          );
                         },
                       );
                     },
