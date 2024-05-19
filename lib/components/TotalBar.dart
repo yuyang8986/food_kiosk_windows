@@ -8,6 +8,7 @@ class TotalBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height: 120,
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -25,7 +26,7 @@ class TotalBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Total KES $totalPrice",
+            "Total AUD $totalPrice",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
