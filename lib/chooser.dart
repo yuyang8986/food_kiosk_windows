@@ -55,40 +55,39 @@ class _MyChooserState extends State<Chooser> {
   }
 
   Future<void> saveCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> cartJson =
-        itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
-    await prefs.setStringList('cartItems', cartJson);
-  }
+  final prefs = await SharedPreferences.getInstance();
+  // Encode each cart item to a JSON string
+  List<String> cartJson = itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+  await prefs.setStringList('cartItems', cartJson);
+}
 
-  Future<void> loadCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> cartJson = prefs.getStringList('cartItems') ?? [];
-    itemCart =
-        cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
-    calculateTotal(); // Recalculate total every time you load the cart
-  }
+Future<void> loadCart() async {
+  final prefs = await SharedPreferences.getInstance();
+  List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+  setState(() {
+    // Decode each JSON string back to a Cart object
+    itemCart = cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+  });
+}
+
 
   void calculateTotal() {
     total = itemCart.fold(0, (sum, cart) => sum + cart.getTotalPrice());
     setState(() {});
   }
 
-  void updateCart(Item addedItem) {
-    setState(() {
-      itemCart.add(Cart(
-          addedItem.name,
-          addedItem.img,
-          addedItem.getTotalPrice(),
-          addedItem.quantity,
-          addedItem.sugarLevel,
-          addedItem.addOnPrices));
-
-      total =
-          itemCart.fold(0, (sum, cartItem) => sum + cartItem.getTotalPrice());
-    });
-    saveCart();
+  Future<void> handlePaymentCompleted() async {
+    await loadCart();
+      recalculateTotal();
+    setState(() {});
   }
+
+  void recalculateTotal() {
+  setState(() {
+    total = itemCart.fold(0, (sum, cartItem) => sum + cartItem.getTotalPrice());
+  });
+}
+
 
   double total = 0.00;
   @override
@@ -337,7 +336,7 @@ class _MyChooserState extends State<Chooser> {
                                         .navigateTo(context, 'payment',
                                             transition: TransitionType.fadeIn);
                                     if (result == true) {
-                                      setState(() {});
+                                      handlePaymentCompleted();
                                     }
                                   },
                                   // shape: RoundedRectangleBorder(
@@ -494,20 +493,33 @@ class _MyChooserState extends State<Chooser> {
                             item: filteredItems[position],
                             position: position,
                             onAddToCart: (Item addedItem) {
-                              // Directly handle the addition here
                               setState(() {
-                                // Check if the item already exists in the cart
-                                var existingItem = itemCart.indexWhere(
+                                // Generate the configuration key for the added item
+                                String configKey =
+                                    addedItem.generateConfigurationKey();
+
+                                // Check if the item with this exact configuration already exists in the cart
+                                var existingItemIndex = itemCart.indexWhere(
                                     (cartItem) =>
-                                        cartItem.name == addedItem.name);
-                                if (existingItem != -1) {
-                                  // Item already exists, increment quantity
-                                  itemCart[existingItem].qtt +=
+                                        cartItem.configKey == configKey);
+
+                                if (existingItemIndex != -1) {
+                                  // If the item exists, increment its quantity
+                                  itemCart[existingItemIndex].qtt +=
                                       addedItem.quantity;
                                 } else {
-                                  // Item does not exist, add new
-                                  updateCart(addedItem);
+                                  // If the item does not exist, add it as a new entry
+                                  itemCart.add(new Cart(
+                                      addedItem.name,
+                                      addedItem.img,
+                                      addedItem.getTotalPrice(),
+                                      addedItem.quantity,
+                                      addedItem.sugarLevel,
+                                      addedItem.addOns,
+                                      configKey));
                                 }
+                                saveCart();
+                                recalculateTotal();
                               });
                             },
                           );

@@ -23,6 +23,14 @@ class Item {
       'Chocolate': 11.0
     };
 
+   String generateConfigurationKey() {
+    List<String> sortedAddOns = addOns.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key) 
+        .toList()..sort();    
+    return '$name|${sortedAddOns.join(":")}';
+  }
+
   String getName() => name;
 
   String getImg() => img;
