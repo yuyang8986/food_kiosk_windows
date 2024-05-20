@@ -32,7 +32,11 @@ class _MyPaymentState extends State<Payment> {
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        BackButton(),
+                        BackButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                        ),
                         CircleAvatar(
                           backgroundColor: Colors.white,
                           child: Image.asset(
