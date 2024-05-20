@@ -60,19 +60,25 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
             ),
           ),
           ListTile(
-            title: Text("Sugar"),
-            trailing: DropdownButton<int>(
-              value: widget.item.sugarLevel,
-              items: ["Less", "Medium", "Strong"].asMap().entries.map((entry) {
-                return DropdownMenuItem<int>(
-                  value: entry.key,
-                  child: Text(entry.value),
-                );
-              }).toList(),
-              onChanged: (newValue) =>
-                  setState(() => widget.item.sugarLevel = newValue!),
-            ),
-          ),
+  title: Text("Sugar"),
+  trailing: DropdownButton<String>(
+    value: widget.item.sugarLevel,
+    items: ["Less", "Medium", "Strong"].map((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList(),
+    onChanged: (String? newValue) {
+      setState(() {
+        if (newValue != null) {
+          widget.item.sugarLevel = newValue;
+        }
+      });
+    },
+  ),
+),
+
           ...{"Cookie": 11.0, "Marshmallow": 11.0, "Chocolate": 11.0}
               .entries
               .map((addOn) {
