@@ -7,11 +7,13 @@ import 'package:mcdo_ui/item.dart';
 class CustomizeItemSheet extends StatefulWidget {
   final Item item;
   final int position;
+  final Function(Item) onAddToCart;
 
   const CustomizeItemSheet({
     Key? key,
     required this.item,
     required this.position,
+    required this.onAddToCart,
   }) : super(key: key);
 
   @override
@@ -22,7 +24,6 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 1300,
       padding: EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -78,18 +79,23 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
             return CheckboxListTile(
               title: Text(addOn.key),
               subtitle: Text("AUD ${addOn.value}"),
-              value: widget.item.addOns.containsKey(addOn.key),
+              value: widget.item.addOns.containsKey(addOn.key) &&
+                  widget.item.addOns[addOn.key]!,
               onChanged: (bool? value) {
                 setState(() {
-                  widget.item.addOns[addOn.key] = value!;
+                  if (value == true) {
+                    widget.item.addOns[addOn.key] = true;
+                  } else {
+                    widget.item.addOns.remove(addOn.key);
+                  }
                 });
               },
             );
           }).toList(),
-          TotalBar(totalPrice: widget.item.getTotalPrice()),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Done"),
+          TotalBar(
+            totalPrice: widget.item.getTotalPrice(),
+            onAddToCart: widget.onAddToCart,
+            item: widget.item,
           ),
         ],
       ),

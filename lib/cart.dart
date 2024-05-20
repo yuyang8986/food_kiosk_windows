@@ -5,7 +5,8 @@ class Cart {
   int qtt;
 
   getTotalPrice() {
-    return price*qtt;
+    // return price*qtt;
+    return price;
   }
 
   add() {

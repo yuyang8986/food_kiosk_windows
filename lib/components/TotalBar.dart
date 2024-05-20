@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/item.dart';
 
 class TotalBar extends StatelessWidget {
   final double totalPrice;
+  final Function(Item) onAddToCart;
+  final Item item; 
 
-  const TotalBar({Key? key, required this.totalPrice}) : super(key: key);
+  const TotalBar({Key? key, required this.totalPrice, required this.onAddToCart, required this.item}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 120,
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -35,7 +37,8 @@ class TotalBar extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              // Add your onPressed logic here
+              onAddToCart(item);
+              Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,

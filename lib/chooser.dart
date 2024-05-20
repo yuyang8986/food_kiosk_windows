@@ -291,11 +291,14 @@ class _MyChooserState extends State<Chooser> {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20)))
                                       ]),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     Navigation.initPaths(itemCart, widget.type);
-                                    Navigation.router.navigateTo(
-                                        context, 'payment',
-                                        transition: TransitionType.fadeIn);
+                                    final result = await Navigation.router
+                                        .navigateTo(context, 'payment',
+                                            transition: TransitionType.fadeIn);
+                                    if (result == true) {
+                                      setState(() {});
+                                    }
                                   },
                                   // shape: RoundedRectangleBorder(
                                   //     borderRadius:
@@ -436,11 +439,30 @@ class _MyChooserState extends State<Chooser> {
                         isScrollControlled: true,
                         context: context,
                         builder: (BuildContext context) {
-                          return Container(
-                            // height: 1200,
-                            child: CustomizeItemSheet(
-                                item: filteredItems[position],
-                                position: position),
+                          return CustomizeItemSheet(
+                            item: filteredItems[position],
+                            position: position,
+                            onAddToCart: (Item addedItem) {
+                              // Directly handle the addition here
+                              setState(() {
+                                // Check if the item already exists in the cart
+                                var existingItem = itemCart.indexWhere(
+                                    (cartItem) =>
+                                        cartItem.name == addedItem.name);
+                                if (existingItem != -1) {
+                                  // Item already exists, increment quantity
+                                  itemCart[existingItem].qtt +=
+                                      addedItem.quantity;
+                                } else {
+                                  // Item does not exist, add new
+                                  itemCart.add(Cart(
+                                      addedItem.name,
+                                      addedItem.img,
+                                      addedItem.getTotalPrice(),
+                                      addedItem.quantity));
+                                }
+                              });
+                            },
                           );
                         },
                       );
@@ -467,25 +489,29 @@ class _MyChooserState extends State<Chooser> {
 
 class Navigation {
   static final router = FluroRouter();
+  static bool _routesDefined = false; 
 
   static void initPaths(itemCart, type) {
-    var chooserHandler = Handler(
-      handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-        return Chooser();
-      },
-    );
+    if (!_routesDefined) {
+      var chooserHandler = Handler(
+        handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+          return Chooser();
+        },
+      );
 
-    var paymentHandler = Handler(
-      handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
-        return Payment(cart: itemCart, type: type);
-      },
-    );
+      var paymentHandler = Handler(
+        handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
+          return Payment(cart: itemCart, type: type);
+        },
+      );
 
-    void defineRoutes(FluroRouter router) {
-      router.define("/", handler: chooserHandler);
-      router.define("payment", handler: paymentHandler);
+      void defineRoutes(FluroRouter router) {
+        router.define("/", handler: chooserHandler);
+        router.define("payment", handler: paymentHandler);
+      }
+
+      defineRoutes(router);
+      _routesDefined = true;
     }
-
-    defineRoutes(router);
   }
 }
