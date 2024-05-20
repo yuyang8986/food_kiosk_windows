@@ -35,11 +35,6 @@ class Cart {
     return price*qtt;
   }
 
-  // double getTotalPrice() {
-  //   double addOnsTotal = addOns.values.fold(0, (sum, price) => sum + price);
-  //   return price + addOnsTotal;
-  // }
-
   add() {
     qtt=qtt+1;
   }
