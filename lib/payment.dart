@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'cart.dart';
 
 class Payment extends StatefulWidget {
@@ -11,11 +14,37 @@ class Payment extends StatefulWidget {
   _MyPaymentState createState() => _MyPaymentState();
 }
 
+
+
 class _MyPaymentState extends State<Payment> {
   List<Cart> itemCart = [];
   void initState() {
     super.initState();
     itemCart = widget.cart;
+    loadCart(); 
+  }
+
+  Future<void> saveCart() async {
+  final prefs = await SharedPreferences.getInstance();
+  // Encode each cart item to a JSON string
+  List<String> cartJson = itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+  await prefs.setStringList('cartItems', cartJson);
+}
+
+Future<void> loadCart() async {
+  final prefs = await SharedPreferences.getInstance();
+  List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+  setState(() {
+    // Decode each JSON string back to a Cart object
+    itemCart = cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+  });
+}
+
+
+  void updateCart() {
+    setState(() {
+      saveCart(); // Save cart items when the cart is updated
+    });
   }
 
   @override
@@ -169,6 +198,7 @@ class _MyPaymentState extends State<Payment> {
                         itemCart.removeAt(position);
                       }
                     });
+                    updateCart();
                   }),
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(12.0))),
@@ -188,6 +218,7 @@ class _MyPaymentState extends State<Payment> {
                     setState(() {
                       itemCart[position].add();
                     });
+                    updateCart();
                   }),
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(12.0))),

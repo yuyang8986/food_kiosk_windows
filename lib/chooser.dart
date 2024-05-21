@@ -1,12 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/components/CartBar.dart';
+import 'package:mcdo_ui/components/CartBottomSheet.dart';
 import 'package:mcdo_ui/components/CustomizeItemSheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'item.dart';
 import 'cart.dart';
 import 'package:fluro/fluro.dart';
 import 'payment.dart';
+import 'dart:convert';
 
 class Chooser extends StatefulWidget {
   final type; // Eat in or Take out
@@ -25,6 +29,7 @@ class _MyChooserState extends State<Chooser> {
   String category = "All";
   void initState() {
     super.initState();
+    loadCart();
     Category c1 = new Category("Combo Meal", "assets/combo.png");
     Category c2 = new Category("Burgers", "assets/burgers.png");
     Category c3 = new Category("Happy Meal", "assets/meal.png");
@@ -48,6 +53,41 @@ class _MyChooserState extends State<Chooser> {
 
     filteredItems = itemMenu;
   }
+
+  Future<void> saveCart() async {
+  final prefs = await SharedPreferences.getInstance();
+  // Encode each cart item to a JSON string
+  List<String> cartJson = itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+  await prefs.setStringList('cartItems', cartJson);
+}
+
+Future<void> loadCart() async {
+  final prefs = await SharedPreferences.getInstance();
+  List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+  setState(() {
+    // Decode each JSON string back to a Cart object
+    itemCart = cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+  });
+}
+
+
+  void calculateTotal() {
+    total = itemCart.fold(0, (sum, cart) => sum + cart.getTotalPrice());
+    setState(() {});
+  }
+
+  Future<void> handlePaymentCompleted() async {
+    await loadCart();
+      recalculateTotal();
+    setState(() {});
+  }
+
+  void recalculateTotal() {
+  setState(() {
+    total = itemCart.fold(0, (sum, cartItem) => sum + cartItem.getTotalPrice());
+  });
+}
+
 
   double total = 0.00;
   @override
@@ -271,9 +311,8 @@ class _MyChooserState extends State<Chooser> {
                               indent: 10,
                             ),
                             SizedBox(height: 5),
-                            Text("Total", style: TextStyle(fontSize: 14)),
-                            SizedBox(height: 5),
-                            getTotal(),
+                            // Text("Total", style: TextStyle(fontSize: 14)),
+                            // SizedBox(height: 5),
                             Spacer(),
                             ButtonTheme(
                                 minWidth: 50.0,
@@ -297,7 +336,7 @@ class _MyChooserState extends State<Chooser> {
                                         .navigateTo(context, 'payment',
                                             transition: TransitionType.fadeIn);
                                     if (result == true) {
-                                      setState(() {});
+                                      handlePaymentCompleted();
                                     }
                                   },
                                   // shape: RoundedRectangleBorder(
@@ -306,6 +345,17 @@ class _MyChooserState extends State<Chooser> {
                                   //         )
                                 )),
                             Spacer(),
+                            CartBar(
+                              total: total,
+                              onViewCartPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CartBottomSheet(itemCart: itemCart);
+                                  },
+                                );
+                              },
+                            ),
                           ]))),
                       flex: 1,
                     ),
@@ -443,24 +493,33 @@ class _MyChooserState extends State<Chooser> {
                             item: filteredItems[position],
                             position: position,
                             onAddToCart: (Item addedItem) {
-                              // Directly handle the addition here
                               setState(() {
-                                // Check if the item already exists in the cart
-                                var existingItem = itemCart.indexWhere(
+                                // Generate the configuration key for the added item
+                                String configKey =
+                                    addedItem.generateConfigurationKey();
+
+                                // Check if the item with this exact configuration already exists in the cart
+                                var existingItemIndex = itemCart.indexWhere(
                                     (cartItem) =>
-                                        cartItem.name == addedItem.name);
-                                if (existingItem != -1) {
-                                  // Item already exists, increment quantity
-                                  itemCart[existingItem].qtt +=
+                                        cartItem.configKey == configKey);
+
+                                if (existingItemIndex != -1) {
+                                  // If the item exists, increment its quantity
+                                  itemCart[existingItemIndex].qtt +=
                                       addedItem.quantity;
                                 } else {
-                                  // Item does not exist, add new
-                                  itemCart.add(Cart(
+                                  // If the item does not exist, add it as a new entry
+                                  itemCart.add(new Cart(
                                       addedItem.name,
                                       addedItem.img,
                                       addedItem.getTotalPrice(),
-                                      addedItem.quantity));
+                                      addedItem.quantity,
+                                      addedItem.sugarLevel,
+                                      addedItem.addOns,
+                                      configKey));
                                 }
+                                saveCart();
+                                recalculateTotal();
                               });
                             },
                           );
@@ -475,21 +534,25 @@ class _MyChooserState extends State<Chooser> {
         ]);
   }
 
+  // Widget getTotal() {
+  //   int i = 0;
+  //   double total = 0.0;
+  //   while (i < itemCart.length) {
+  //     total = total + itemCart[i].getTotalPrice();
+  //     i++;
+  //   }
+  //   return Text("\$" + total.toString(),
+  //       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25));
+  // }
   Widget getTotal() {
-    int i = 0;
-    double total = 0.0;
-    while (i < itemCart.length) {
-      total = total + itemCart[i].getTotalPrice();
-      i++;
-    }
-    return Text("\$" + total.toString(),
+    return Text("\$${total.toStringAsFixed(2)}",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25));
   }
 }
 
 class Navigation {
   static final router = FluroRouter();
-  static bool _routesDefined = false; 
+  static bool _routesDefined = false;
 
   static void initPaths(itemCart, type) {
     if (!_routesDefined) {

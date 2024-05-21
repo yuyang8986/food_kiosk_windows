@@ -3,10 +3,36 @@ class Cart {
   String img;
   double price;
   int qtt;
+  String sugarLevel;
+  Map<String, bool> addOns;
+  String configKey;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'img': img,
+      'price': price,
+      'qtt': qtt,
+      'sugarLevel': sugarLevel,
+      'addOns': addOns,
+      'configKey': configKey,
+    };
+  }
+
+  static Cart fromJson(Map<String, dynamic> json) {
+    return Cart(
+      json['name'],
+      json['img'],
+      json['price'].toDouble(),
+      json['qtt'],
+      json['sugarLevel'],
+      Map<String, bool>.from(json['addOns']),
+      json['configKey']?? '',
+    );
+  }
 
   getTotalPrice() {
-    // return price*qtt;
-    return price;
+    return price*qtt;
   }
 
   add() {
@@ -18,5 +44,5 @@ class Cart {
   }
 
 
-  Cart(this.name, this.img, this.price, this.qtt);
+  Cart(this.name, this.img, this.price, this.qtt, this.sugarLevel, this.addOns, this.configKey);
 }
