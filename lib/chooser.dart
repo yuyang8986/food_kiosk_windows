@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mcdo_ui/components/CartBar.dart';
 import 'package:mcdo_ui/components/CartBottomSheet.dart';
 import 'package:mcdo_ui/components/CustomizeItemSheet.dart';
@@ -55,21 +56,22 @@ class _MyChooserState extends State<Chooser> {
   }
 
   Future<void> saveCart() async {
-  final prefs = await SharedPreferences.getInstance();
-  // Encode each cart item to a JSON string
-  List<String> cartJson = itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
-  await prefs.setStringList('cartItems', cartJson);
-}
+    final prefs = await SharedPreferences.getInstance();
+    // Encode each cart item to a JSON string
+    List<String> cartJson =
+        itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+    await prefs.setStringList('cartItems', cartJson);
+  }
 
-Future<void> loadCart() async {
-  final prefs = await SharedPreferences.getInstance();
-  List<String> cartJson = prefs.getStringList('cartItems') ?? [];
-  setState(() {
-    // Decode each JSON string back to a Cart object
-    itemCart = cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
-  });
-}
-
+  Future<void> loadCart() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+    setState(() {
+      // Decode each JSON string back to a Cart object
+      itemCart =
+          cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+    });
+  }
 
   void calculateTotal() {
     total = itemCart.fold(0, (sum, cart) => sum + cart.getTotalPrice());
@@ -78,16 +80,16 @@ Future<void> loadCart() async {
 
   Future<void> handlePaymentCompleted() async {
     await loadCart();
-      recalculateTotal();
+    recalculateTotal();
     setState(() {});
   }
 
   void recalculateTotal() {
-  setState(() {
-    total = itemCart.fold(0, (sum, cartItem) => sum + cartItem.getTotalPrice());
-  });
-}
-
+    setState(() {
+      total =
+          itemCart.fold(0, (sum, cartItem) => sum + cartItem.getTotalPrice());
+    });
+  }
 
   double total = 0.00;
   @override
@@ -392,146 +394,156 @@ Future<void> loadCart() async {
   }
 
   Widget listItem(int position) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Image.asset(
-            filteredItems[position].img,
-            fit: BoxFit.contain,
-          ),
-          FittedBox(
-              fit: BoxFit.fitWidth,
-              child: Text(filteredItems[position].name,
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-          // Text("\$" + itemCart[position].getTotalPrice().toString()),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              // ButtonTheme(
-              //     minWidth: 20.0,
-              //     height: 25.0,
-              //     buttonColor: Color.fromRGBO(246, 246, 246, 1),
-              //     child: ElevatedButton(
-              //         child: Text("-"),
-              //         onPressed: () {
-              //           setState(() {
-              //             itemCart[position].remove();
-              //             if (itemCart[position].qtt <= 0) {
-              //               itemCart.removeAt(position);
-              //             }
-              //           });
-              //         }),
-              //     shape: RoundedRectangleBorder(
-              //         borderRadius: new BorderRadius.circular(12.0))),
-              // Text(
-              //   itemCart[position].qtt.toString(),
-              //   style: TextStyle(fontWeight: FontWeight.bold),
-              // ),
-              ButtonTheme(
-                  minWidth: 20.0,
-                  height: 25.0,
-                  buttonColor: Color.fromRGBO(230, 203, 51, 1),
-                  child: ElevatedButton(
-                    child: Text("+"),
-                    // onPressed: () {
-                    //   showMaterialModalBottomSheet(
-                    //       context: context,
-                    //       builder: (context) {
-                    //         return Container(
-                    //             height: 600,
-                    //             color: Colors.white,
-                    //             child: Center(
-                    //               child: Column(
-                    //                 mainAxisAlignment:
-                    //                     MainAxisAlignment.spaceAround,
-                    //                 mainAxisSize: MainAxisSize.min,
-                    //                 children: <Widget>[
-                    //                   Image.asset(
-                    //                     filteredItems[position].img,
-                    //                     fit: BoxFit.contain,
-                    //                   ),
-                    //                   SizedBox(
-                    //                     height: 20,
-                    //                   ),
-                    //                   FittedBox(
-                    //                       fit: BoxFit.fitWidth,
-                    //                       child: Text(
-                    //                           filteredItems[position].name,
-                    //                           style: TextStyle(
-                    //                               fontWeight:
-                    //                                   FontWeight.bold))),
-                    //                   SizedBox(
-                    //                     height: 50,
-                    //                   ),
-                    //                   const Text('Customize'),
-                    //                    SizedBox(
-                    //                     height: 20,
-                    //                   ),
-                    //                   Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold),),
-
-                    //                   ElevatedButton(
-                    //                     child:
-                    //                         const Text('Close'),
-                    //                     onPressed: () {
-                    //                       Navigator.pop(context);
-                    //                     },
-                    //                   ),
-                    //                 ],
-                    //               ),
-                    //             ));
-                    //       });
-                    //   // setState(() {
-                    //   //   itemCart[position].add();
-                    //   // });
-                    // }
-                    onPressed: () {
-                      showModalBottomSheet(
-                        isScrollControlled: true,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomizeItemSheet(
-                            item: filteredItems[position],
-                            position: position,
-                            onAddToCart: (Item addedItem) {
-                              setState(() {
-                                // Generate the configuration key for the added item
-                                String configKey =
-                                    addedItem.generateConfigurationKey();
-
-                                // Check if the item with this exact configuration already exists in the cart
-                                var existingItemIndex = itemCart.indexWhere(
-                                    (cartItem) =>
-                                        cartItem.configKey == configKey);
-
-                                if (existingItemIndex != -1) {
-                                  // If the item exists, increment its quantity
-                                  itemCart[existingItemIndex].qtt +=
-                                      addedItem.quantity;
-                                } else {
-                                  // If the item does not exist, add it as a new entry
-                                  itemCart.add(new Cart(
-                                      addedItem.name,
-                                      addedItem.img,
-                                      addedItem.getTotalPrice(),
-                                      addedItem.quantity,
-                                      addedItem.sugarLevel,
-                                      addedItem.addOns,
-                                      configKey));
-                                }
-                                saveCart();
-                                recalculateTotal();
-                              });
-                            },
-                          );
-                        },
-                      );
-                    },
+    int nextPosition =
+        position + 1 < filteredItems.length ? position + 1 : position;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Expanded(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset(
+                  filteredItems[position].img,
+                  fit: BoxFit.contain,
+                ),
+                FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(filteredItems[position].name,
+                        style: TextStyle(fontWeight: FontWeight.bold))),
+                // Text("\$" + itemCart[position].getTotalPrice().toString()),
+                actionButton(context, position)
+              ]),
+        ),
+        if (position != nextPosition)
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset(
+                  filteredItems[nextPosition].img,
+                  fit: BoxFit.contain,
+                ),
+                FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    filteredItems[nextPosition].name,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(12.0))),
-            ],
-          )
-        ]);
+                ),
+                actionButton(context, nextPosition),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget actionButton(BuildContext context, int position) {
+    return ButtonTheme(
+      minWidth: 20.0,
+      height: 25.0,
+      buttonColor: Color.fromRGBO(230, 203, 51, 1),
+      child: ElevatedButton(
+        child: Text("+"),
+        // onPressed: () {
+        //   showMaterialModalBottomSheet(
+        //       context: context,
+        //       builder: (context) {
+        //         return Container(
+        //             height: 600,
+        //             color: Colors.white,
+        //             child: Center(
+        //               child: Column(
+        //                 mainAxisAlignment:
+        //                     MainAxisAlignment.spaceAround,
+        //                 mainAxisSize: MainAxisSize.min,
+        //                 children: <Widget>[
+        //                   Image.asset(
+        //                     filteredItems[position].img,
+        //                     fit: BoxFit.contain,
+        //                   ),
+        //                   SizedBox(
+        //                     height: 20,
+        //                   ),
+        //                   FittedBox(
+        //                       fit: BoxFit.fitWidth,
+        //                       child: Text(
+        //                           filteredItems[position].name,
+        //                           style: TextStyle(
+        //                               fontWeight:
+        //                                   FontWeight.bold))),
+        //                   SizedBox(
+        //                     height: 50,
+        //                   ),
+        //                   const Text('Customize'),
+        //                    SizedBox(
+        //                     height: 20,
+        //                   ),
+        //                   Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold),),
+
+        //                   ElevatedButton(
+        //                     child:
+        //                         const Text('Close'),
+        //                     onPressed: () {
+        //                       Navigator.pop(context);
+        //                     },
+        //                   ),
+        //                 ],
+        //               ),
+        //             ));
+        //       });
+        //   // setState(() {
+        //   //   itemCart[position].add();
+        //   // });
+        // }
+        onPressed: () {
+          showModalBottomSheet(
+            isScrollControlled: true,
+            context: context,
+            builder: (BuildContext context) {
+              return CustomizeItemSheet(
+                item: filteredItems[position],
+                position: position,
+                onAddToCart: (Item addedItem) {
+                  setState(() {
+                    // Handle the item addition logic
+                    handleItemAddition(addedItem, position);
+                  });
+                },
+              );
+            },
+          );
+        },
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+    );
+  }
+
+  void handleItemAddition(Item addedItem, int position) {
+    // Generate the configuration key for the added item
+    String configKey = addedItem.generateConfigurationKey();
+
+    // Check if the item with this exact configuration already exists in the cart
+    var existingItemIndex =
+        itemCart.indexWhere((cartItem) => cartItem.configKey == configKey);
+
+    if (existingItemIndex != -1) {
+      // If the item exists, increment its quantity
+      itemCart[existingItemIndex].qtt += addedItem.quantity;
+    } else {
+      // If the item does not exist, add it as a new entry
+      itemCart.add(new Cart(
+          addedItem.name,
+          addedItem.img,
+          addedItem.getTotalPrice(),
+          addedItem.quantity,
+          addedItem.sugarLevel,
+          addedItem.addOns,
+          configKey));
+    }
+    saveCart();
+    recalculateTotal();
   }
 
   // Widget getTotal() {
