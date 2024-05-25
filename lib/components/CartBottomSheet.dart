@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mcdo_ui/cart.dart';  // Ensure correct path to the Cart model
+import 'package:mcdo_ui/cart.dart'; // Ensure correct path to the Cart model
 
 class CartBottomSheet extends StatelessWidget {
   final List<Cart> itemCart;
@@ -26,10 +26,12 @@ class CartBottomSheet extends StatelessWidget {
                 children: <Widget>[
                   Text("Quantity: ${cartItem.qtt}"),
                   Text("Sugar Level: ${cartItem.sugarLevel}"),
-                  if (addOns.isNotEmpty) ...addOns.map((addOn) => Text(addOn)).toList(),
+                  if (addOns.isNotEmpty)
+                    ...addOns.map((addOn) => Text(addOn)).toList(),
                 ],
               ),
-              trailing: Text("KES ${cartItem.getTotalPrice().toStringAsFixed(2)}"),
+              trailing:
+                  Text("AUD ${cartItem.getTotalPrice().toStringAsFixed(2)}"),
             ),
           );
         },

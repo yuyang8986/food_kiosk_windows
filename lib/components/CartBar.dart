@@ -32,9 +32,12 @@ class CartBar extends StatelessWidget {
             text: TextSpan(
               children: [
                 WidgetSpan(
-                  child: Icon(Icons.shopping_cart, color: Colors.white, size: 24),
+                  child:
+                      Icon(Icons.shopping_cart, color: Colors.white, size: 24),
                 ),
-                TextSpan(text: " KES $total", style: TextStyle(color: Colors.white, fontSize: 20)),
+                TextSpan(
+                    text: " AUD $total",
+                    style: TextStyle(color: Colors.white, fontSize: 20)),
               ],
             ),
           ),
