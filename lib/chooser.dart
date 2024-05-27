@@ -280,22 +280,20 @@ class _MyChooserState extends State<Chooser> {
                               SizedBox(
                                 height: 10,
                               ),
-                              Divider(
-                                color: Colors.black26,
-                                indent: 10,
-                                endIndent: 10,
-                                height: 5,
-                              ),
+                              // Divider(
+                              //   color: Colors.black26,
+                              //   indent: 10,
+                              //   endIndent: 10,
+                              //   height: 5,
+                              // ),
                               Expanded(
-                                  child: ListView.separated(
+                                  child: ListView.builder(
                                 itemCount: filteredItems.length,
-                                separatorBuilder: (context, index) => Divider(
-                                  color: Colors.black26,
-                                  indent: 10,
-                                  endIndent: 10,
-                                ),
                                 itemBuilder: (context, position) {
-                                  return listItem(position);
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: listItem(position),
+                                  );
                                 },
                               ))
                             ]),
@@ -355,7 +353,13 @@ class _MyChooserState extends State<Chooser> {
                                   builder: (BuildContext context) {
                                     return CartBottomSheet(itemCart: itemCart);
                                   },
-                                );
+                                ).then((value) {
+                                  if (value == true) {
+                                    setState(() {
+                                      calculateTotal();
+                                    });
+                                  }
+                                });
                               },
                             ),
                           ]))),
