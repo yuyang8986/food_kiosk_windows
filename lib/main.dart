@@ -55,10 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 90.0,
                   fit: BoxFit.cover,
                 ),
-                Text("Where will you be eating today ?",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                // Text("Where will you be eating today ?",
+                //     textAlign: TextAlign.center,
+                //     style:
+                //         TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 Row(children: <Widget>[
                   Spacer(flex: 5),
                   ButtonTheme(

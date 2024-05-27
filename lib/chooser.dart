@@ -327,7 +327,7 @@ class _MyChooserState extends State<Chooser> {
                                       children: <Widget>[
                                         FittedBox(
                                             fit: BoxFit.fitWidth,
-                                            child: Text("Done",
+                                            child: Text("Pay",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20)))
