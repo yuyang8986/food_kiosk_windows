@@ -384,14 +384,14 @@ class _MyChooserState extends State<Chooser> {
                     height: 40.0,
                     fit: BoxFit.cover,
                   ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Image.asset(
-                      'assets/US.png',
-                      height: 25,
-                      fit: BoxFit.cover,
-                    ),
-                  )
+                  // CircleAvatar(
+                  //   backgroundColor: Colors.white,
+                  //   child: Image.asset(
+                  //     'assets/US.png',
+                  //     height: 25,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // )
                 ]),
           )),
     ]));

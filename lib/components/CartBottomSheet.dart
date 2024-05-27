@@ -77,7 +77,10 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
                               icon: Icon(Icons.remove),
                               onPressed: () => _decrementQuantity(index),
                             ),
-                            Text(" ${cartItem.qtt} "),
+                            Text(
+                              " ${cartItem.qtt} ",
+                              style: TextStyle(fontSize: 15),
+                            ),
                             IconButton(
                               icon: Icon(Icons.add),
                               onPressed: () => _incrementQuantity(index),

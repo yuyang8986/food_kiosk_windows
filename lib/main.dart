@@ -36,14 +36,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.only(left: 15.0, right: 15.0),
                 width: MediaQuery.of(context).size.width,
                 child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Image.asset(
-                      'assets/US.png',
-                      height: 28,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  // CircleAvatar(
+                  //   backgroundColor: Colors.white,
+                  //   child: Image.asset(
+                  //     'assets/US.png',
+                  //     height: 28,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // ),
                 ]),
               )),
           Center(

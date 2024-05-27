@@ -14,32 +14,31 @@ class Payment extends StatefulWidget {
   _MyPaymentState createState() => _MyPaymentState();
 }
 
-
-
 class _MyPaymentState extends State<Payment> {
   List<Cart> itemCart = [];
   void initState() {
     super.initState();
     itemCart = widget.cart;
-    loadCart(); 
+    loadCart();
   }
 
   Future<void> saveCart() async {
-  final prefs = await SharedPreferences.getInstance();
-  // Encode each cart item to a JSON string
-  List<String> cartJson = itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
-  await prefs.setStringList('cartItems', cartJson);
-}
+    final prefs = await SharedPreferences.getInstance();
+    // Encode each cart item to a JSON string
+    List<String> cartJson =
+        itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+    await prefs.setStringList('cartItems', cartJson);
+  }
 
-Future<void> loadCart() async {
-  final prefs = await SharedPreferences.getInstance();
-  List<String> cartJson = prefs.getStringList('cartItems') ?? [];
-  setState(() {
-    // Decode each JSON string back to a Cart object
-    itemCart = cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
-  });
-}
-
+  Future<void> loadCart() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+    setState(() {
+      // Decode each JSON string back to a Cart object
+      itemCart =
+          cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+    });
+  }
 
   void updateCart() {
     setState(() {
@@ -66,14 +65,14 @@ Future<void> loadCart() async {
                             Navigator.pop(context, true);
                           },
                         ),
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: Image.asset(
-                            'assets/US.png',
-                            height: 25,
-                            fit: BoxFit.cover,
-                          ),
-                        )
+                        // CircleAvatar(
+                        //   backgroundColor: Colors.white,
+                        //   child: Image.asset(
+                        //     'assets/US.png',
+                        //     height: 25,
+                        //     fit: BoxFit.cover,
+                        //   ),
+                        // )
                       ]),
                 )),
             Column(
