@@ -1,12 +1,21 @@
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/cart.dart'; // Ensure correct path to the Cart model
+import 'package:mcdo_ui/chooser.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartBottomSheet extends StatefulWidget {
   final List<Cart> itemCart;
+  final String type;
+  final Function handlePaymentCompleted;
 
-  const CartBottomSheet({Key? key, required this.itemCart}) : super(key: key);
+  const CartBottomSheet(
+      {Key? key,
+      required this.itemCart,
+      required this.type,
+      required this.handlePaymentCompleted})
+      : super(key: key);
 
   @override
   _CartBottomSheetState createState() => _CartBottomSheetState();
@@ -97,9 +106,21 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
             ),
           ),
           ElevatedButton(
-            onPressed: saveCart,
-            child: Text('Confirm'),
-          )
+            onPressed: () async {
+              Navigation.initPaths(widget.itemCart, widget.type);
+              final result = await Navigation.router.navigateTo(
+                  context, 'payment',
+                  transition: TransitionType.fadeIn);
+              if (result == true) {
+                widget.handlePaymentCompleted();
+              }
+            },
+            child: Text(
+              'Confirm Order',
+              style: TextStyle(fontSize: 30),
+            ),
+          ),
+          SizedBox(height: 30),
         ],
       ),
     );

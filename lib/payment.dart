@@ -128,26 +128,120 @@ class _MyPaymentState extends State<Payment> {
                 SizedBox(height: 10),
                 Center(
                     child: ButtonTheme(
-                        minWidth: 50.0,
-                        height: 50.0,
+                        minWidth: 180.0,
+                        height: 80.0,
                         child: ElevatedButton(
                           // color: Color.fromRGBO(230, 203, 51, 1),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                FittedBox(
-                                    fit: BoxFit.fitWidth,
-                                    child: Text("Payment",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20)))
-                              ]),
-                          onPressed: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  FittedBox(
+                                      fit: BoxFit.fitWidth,
+                                      child: Text("Proceed to Payment",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 35)))
+                                ]),
+                          ),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  height: 600,
+                                  width: 900,
+                                  color: Color.fromRGBO(43, 124, 58, 1),
+                                  child: Center(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text("Payment Successful",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 55,
+                                                color: Colors.white)),
+                                        SizedBox(height: 80),
+                                        if (widget.type == "Eat In")
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Table Number",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 30,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width:
+                                                      25), // Space between text and TextField
+                                              Container(
+                                                width:
+                                                    150, // Adjust width as needed
+                                                child: TextField(
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 50,
+                                                  ),
+                                                  decoration: InputDecoration(
+                                                    border: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Colors.white,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Colors.white,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Colors.white,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        SizedBox(height: 80),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, true);
+                                          },
+                                          child: Text("Close",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20)),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ).then((value) {
+                              if (value == true) {
+                                setState(() {});
+                              }
+                            });
+                          },
                           // shape: RoundedRectangleBorder(
                           //     borderRadius:
                           //     new BorderRadius.circular(30.0))
                         ))),
-                SizedBox(height: 10),
+                SizedBox(height: 70),
               ],
             )
           ],

@@ -4,9 +4,14 @@ import 'package:mcdo_ui/item.dart';
 class TotalBar extends StatelessWidget {
   final double totalPrice;
   final Function(Item) onAddToCart;
-  final Item item; 
+  final Item item;
 
-  const TotalBar({Key? key, required this.totalPrice, required this.onAddToCart, required this.item}) : super(key: key);
+  const TotalBar(
+      {Key? key,
+      required this.totalPrice,
+      required this.onAddToCart,
+      required this.item})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

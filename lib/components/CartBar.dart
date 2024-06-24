@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 class CartBar extends StatelessWidget {
   final double total;
   final VoidCallback onViewCartPressed;
+  final bool isEnabled;
 
-  CartBar({required this.total, required this.onViewCartPressed});
+  CartBar(
+      {required this.isEnabled,
+      required this.total,
+      required this.onViewCartPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +48,15 @@ class CartBar extends StatelessWidget {
           ElevatedButton(
             onPressed: onViewCartPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor:
+                  isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
             ),
             child: Text(
               "VIEW CART",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Colors.black.withOpacity(.9)),
             ),
           ),
         ],

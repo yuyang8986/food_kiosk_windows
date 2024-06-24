@@ -30,7 +30,7 @@ class _MyChooserState extends State<Chooser> {
   String category = "All";
   void initState() {
     super.initState();
-    loadCart();
+    //loadCart();
     Category c1 = new Category("Combo Meal", "assets/combo.png");
     Category c2 = new Category("Burgers", "assets/burgers.png");
     Category c3 = new Category("Happy Meal", "assets/meal.png");
@@ -124,33 +124,46 @@ class _MyChooserState extends State<Chooser> {
                         padding: const EdgeInsets.all(10),
                         children: List.generate(categories.length, (index) {
                           return SizedBox(
-                            width: 120, // Set width to match the parent's width
+                            width: 250, // Set width to match the parent's width
                             // height: 150, // Set a fixed height for each item
                             child: Container(
                               margin: EdgeInsets.only(top: 10),
                               child: Center(
                                 child: SizedBox(
-                                  width: 120,
-                                  height: 150,
+                                  // width: 120,
+                                  height: 100,
                                   child: ElevatedButton(
                                     style: ButtonStyle(
+                                      shape: WidgetStateProperty.all(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      )),
                                       backgroundColor:
                                           MaterialStateProperty.all(
                                               Colors.white),
                                     ),
                                     child: Container(
+                                      constraints:
+                                          BoxConstraints(minWidth: 170),
                                       // margin: EdgeInsets.only(bottom: 0),
-                                      child: Column(
+                                      child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                            MainAxisAlignment.start,
                                         children: <Widget>[
                                           // Spacer(),
-                                          Image.asset(
-                                            categories[index].img,
-                                            fit: BoxFit.contain,
+                                          Container(
+                                            constraints: BoxConstraints(
+                                                maxWidth: 50, maxHeight: 50),
+                                            child: Image.asset(
+                                              categories[index].img,
+                                              fit: BoxFit.contain,
+                                            ),
                                           ),
                                           // Spacer(),
-                                          SizedBox(height: 10),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
                                           Flexible(
                                             // Use Flexible to allow the text to wrap if needed
                                             child: Text(
@@ -158,6 +171,7 @@ class _MyChooserState extends State<Chooser> {
                                               textAlign: TextAlign
                                                   .center, // Center the text horizontally
                                               style: TextStyle(
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black),
                                             ),
@@ -241,7 +255,7 @@ class _MyChooserState extends State<Chooser> {
                 ],
               ),
             ),
-            flex: 1,
+            flex: 2,
           ),
           Expanded(
             child: Container(
@@ -314,54 +328,46 @@ class _MyChooserState extends State<Chooser> {
                             // Text("Total", style: TextStyle(fontSize: 14)),
                             // SizedBox(height: 5),
                             Spacer(),
-                            ButtonTheme(
-                                minWidth: 50.0,
-                                height: 50.0,
-                                child: ElevatedButton(
-                                  // color: Color.fromRGBO(230, 203, 51, 1),
-                                  child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Text("Pay",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20)))
-                                      ]),
-                                  onPressed: () async {
-                                    Navigation.initPaths(itemCart, widget.type);
-                                    final result = await Navigation.router
-                                        .navigateTo(context, 'payment',
-                                            transition: TransitionType.fadeIn);
-                                    if (result == true) {
-                                      handlePaymentCompleted();
-                                    }
-                                  },
-                                  // shape: RoundedRectangleBorder(
-                                  //     borderRadius:
-                                  //         new BorderRadius.circular(30.0)
-                                  //         )
-                                )),
+                            // ButtonTheme(
+                            //     minWidth: 50.0,
+                            //     height: 50.0,
+                            //     child: ElevatedButton(
+                            //       // color: Color.fromRGBO(230, 203, 51, 1),
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.all(8.0),
+                            //         child: Column(
+                            //             mainAxisAlignment:
+                            //                 MainAxisAlignment.center,
+                            //             children: <Widget>[
+                            //               FittedBox(
+                            //                   fit: BoxFit.fitWidth,
+                            //                   child: Text("Pay",
+                            //                       style: TextStyle(
+                            //                           fontWeight:
+                            //                               FontWeight.bold,
+                            //                           fontSize: 40)))
+                            //             ]),
+                            //       ),
+                            //       onPressed: () async {
+                            //         Navigation.initPaths(itemCart, widget.type);
+                            //         final result = await Navigation.router
+                            //             .navigateTo(context, 'payment',
+                            //                 transition: TransitionType.fadeIn);
+                            //         if (result == true) {
+                            //           handlePaymentCompleted();
+                            //         }
+                            //       },
+                            //       // shape: RoundedRectangleBorder(
+                            //       //     borderRadius:
+                            //       //         new BorderRadius.circular(30.0)
+                            //       //         )
+                            //     )),
                             Spacer(),
                             CartBar(
-                              total: total,
-                              onViewCartPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CartBottomSheet(itemCart: itemCart);
-                                  },
-                                ).then((value) {
-                                  if (value == true) {
-                                    setState(() {
-                                      calculateTotal();
-                                    });
-                                  }
-                                });
-                              },
-                            ),
+                                isEnabled: itemCart.length > 0,
+                                total: total,
+                                onViewCartPressed:
+                                    itemCart.length == 0 ? () {} : showCart),
                           ]))),
                       flex: 1,
                     ),
@@ -395,6 +401,25 @@ class _MyChooserState extends State<Chooser> {
                 ]),
           )),
     ]));
+  }
+
+  showCart() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return CartBottomSheet(
+          itemCart: itemCart,
+          type: widget.type,
+          handlePaymentCompleted: handlePaymentCompleted,
+        );
+      },
+    ).then((value) {
+      if (value == true) {
+        setState(() {
+          calculateTotal();
+        });
+      }
+    });
   }
 
   Widget listItem(int position) {
