@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:mcdo_ui/models/item.dart';
 
 class ItemCategory {
@@ -20,7 +22,7 @@ class ItemCategory {
       itemCategoryId: json['itemCategoryId'],
       itemCategoryName: json['itemCategoryName'],
       itemCategoryDescription: json['itemCategoryDescription'],
-      categoryImage: List<int>.from(json['categoryImage']),
+      categoryImage: base64Decode(json['categoryImage']),
       items: (json['items'] as List).map((i) => Item.fromJson(i)).toList(),
     );
   }

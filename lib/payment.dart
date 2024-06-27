@@ -1,50 +1,52 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/models/order.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cart.dart';
 
 class Payment extends StatefulWidget {
-  final cart;
+  final order;
   final type; // Eat in or Take out
 
-  Payment({this.cart, this.type});
+  Payment({this.order, this.type});
 
   @override
   _MyPaymentState createState() => _MyPaymentState();
 }
 
 class _MyPaymentState extends State<Payment> {
-  List<Cart> itemCart = [];
+  late Order order;
   void initState() {
     super.initState();
-    itemCart = widget.cart;
-    loadCart();
+    order = widget.order;
+    // loadCart();
   }
 
-  Future<void> saveCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    // Encode each cart item to a JSON string
-    List<String> cartJson =
-        itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
-    await prefs.setStringList('cartItems', cartJson);
-  }
+  // Future<void> saveCart() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   // Encode each cart item to a JSON string
+  //   List<String> cartJson =
+  //       itemCart.map((cart) => jsonEncode(cart.toJson())).toList();
+  //   await prefs.setStringList('cartItems', cartJson);
+  // }
 
-  Future<void> loadCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> cartJson = prefs.getStringList('cartItems') ?? [];
-    setState(() {
-      // Decode each JSON string back to a Cart object
-      itemCart =
-          cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
-    });
-  }
+  // Future<void> loadCart() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   List<String> cartJson = prefs.getStringList('cartItems') ?? [];
+  //   setState(() {
+  //     // Decode each JSON string back to a Cart object
+  //     itemCart =
+  //         cartJson.map((string) => Cart.fromJson(jsonDecode(string))).toList();
+  //   });
+  // }
 
-  void updateCart() {
-    setState(() {
-      saveCart(); // Save cart items when the cart is updated
-    });
-  }
+  // void updateCart() {
+  //   setState(() {
+  //     saveCart(); // Save cart items when the cart is updated
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +84,7 @@ class _MyPaymentState extends State<Payment> {
                 Center(
                     child: Image.asset(
                   'assets/logo.png',
-                  height: 60.0,
+                  height: 120.0,
                   fit: BoxFit.cover,
                 )),
                 SizedBox(height: 15),
@@ -115,7 +117,7 @@ class _MyPaymentState extends State<Payment> {
                 ),
                 Expanded(
                     child: ListView.separated(
-                  itemCount: itemCart.length,
+                  itemCount: order.orderItems.length,
                   separatorBuilder: (context, index) => Divider(
                     color: Colors.black26,
                     indent: 10,
@@ -254,8 +256,8 @@ class _MyPaymentState extends State<Payment> {
       CircleAvatar(
         backgroundColor: Colors.white,
         radius: 35,
-        child: Image.asset(
-          itemCart[position].img,
+        child: Image.memory(
+          order.orderItems[position].item.itemImage as Uint8List,
         ),
       ),
       SizedBox(width: 20),
@@ -264,12 +266,12 @@ class _MyPaymentState extends State<Payment> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(itemCart[position].name,
+              Text(order.orderItems[position].item.itemName,
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.white)),
               SizedBox(height: 5),
               Text(
-                "\$" + itemCart[position].getTotalPrice().toString(),
+                "\$" + order.orderItems[position].getTotalPrice().toString(),
                 style: TextStyle(color: Colors.white),
               )
             ],
@@ -286,18 +288,18 @@ class _MyPaymentState extends State<Payment> {
                   child: Text("-"),
                   onPressed: () {
                     setState(() {
-                      itemCart[position].remove();
-                      if (itemCart[position].qtt <= 0) {
-                        itemCart.removeAt(position);
+                      order.orderItems[position].remove(1);
+                      if (order.orderItems[position].quantity <= 0) {
+                        order.orderItems.removeAt(position);
                       }
                     });
-                    updateCart();
+                    // updateCart();
                   }),
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(12.0))),
           SizedBox(width: 10),
           Text(
-            itemCart[position].qtt.toString(),
+            order.orderItems[position].quantity.toString(),
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           SizedBox(width: 10),
@@ -309,9 +311,9 @@ class _MyPaymentState extends State<Payment> {
                   child: Text("+"),
                   onPressed: () {
                     setState(() {
-                      itemCart[position].add();
+                      order.orderItems[position].add();
                     });
-                    updateCart();
+                    // updateCart();
                   }),
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(12.0))),

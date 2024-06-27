@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 Image.asset(
                   'assets/logo.png',
-                  height: 90.0,
+                  height: 140.0,
                   fit: BoxFit.cover,
                 ),
                 // Text("Where will you be eating today ?",

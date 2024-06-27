@@ -1,17 +1,22 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/components/TotalBar.dart';
 import 'package:mcdo_ui/item.dart';
+import 'package:mcdo_ui/models/item-addon-option.dart';
+import 'package:mcdo_ui/models/item-addon.dart';
+import 'package:mcdo_ui/models/item.dart';
+import 'package:mcdo_ui/models/orderItem.dart';
 
 class CustomizeItemSheet extends StatefulWidget {
-  final Item item;
+  final OrderItem orderItem;
   final int position;
   final Function(Item) onAddToCart;
 
   const CustomizeItemSheet({
     Key? key,
-    required this.item,
+    required this.orderItem,
     required this.position,
     required this.onAddToCart,
   }) : super(key: key);
@@ -28,14 +33,15 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            widget.item.getImg(),
+          Image.memory(
+            widget.orderItem.item.itemImage as Uint8List,
             fit: BoxFit.contain,
+            height: 80,
           ),
           SizedBox(height: 20),
           FittedBox(
             fit: BoxFit.fitWidth,
-            child: Text(widget.item.getName(),
+            child: Text(widget.orderItem.item.itemName,
                 style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           SizedBox(height: 50),
@@ -48,59 +54,57 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
               children: [
                 IconButton(
                   icon: Icon(Icons.remove),
-                  onPressed: () => setState(() =>
-                      widget.item.quantity = max(1, widget.item.quantity - 1)),
+                  onPressed: () => setState(() => widget.orderItem.quantity =
+                      max(1, widget.orderItem.quantity - 1)),
                 ),
-                Text(widget.item.quantity.toString()),
+                Text(widget.orderItem.quantity.toString()),
                 IconButton(
                   icon: Icon(Icons.add),
-                  onPressed: () => setState(() => widget.item.quantity++),
+                  onPressed: () => setState(() => widget.orderItem.quantity++),
                 ),
               ],
             ),
           ),
-          ListTile(
-            title: Text("Sugar"),
-            trailing: DropdownButton<String>(
-              value: widget.item.sugarLevel,
-              items: ["Less", "Medium", "Strong"].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  if (newValue != null) {
-                    widget.item.sugarLevel = newValue;
-                  }
-                });
-              },
+          if (widget.orderItem.item.itemAddons.isNotEmpty)
+            SingleChildScrollView(
+              child: Column(
+                children: widget.orderItem.item.itemAddons.map((ia) {
+                  return ListTile(
+                    title: Text(ia.itemAddonName),
+                    trailing: DropdownButton<ItemAddonOption>(
+                      value: widget.orderItem.selectedItemAddonOptions.isEmpty
+                          ? null
+                          : widget.orderItem.selectedItemAddonOptions
+                              .firstWhere(
+                              (ItemAddonOption iao) =>
+                                  iao.itemAddonId == ia.itemAddonId,
+                            ), // handle case where no match is found
+                      items: ia.itemAddonOptions.map((ItemAddonOption iao) {
+                        return DropdownMenuItem<ItemAddonOption>(
+                          value: iao,
+                          child: Text(iao.optionName),
+                        );
+                      }).toList(),
+                      onChanged: (ItemAddonOption? newValue) {
+                        setState(() {
+                          if (newValue != null) {
+                            widget.orderItem.selectedItemAddonOptions
+                                .removeWhere((ItemAddonOption iao) =>
+                                    iao.itemAddonId == ia.itemAddonId);
+                            widget.orderItem.selectedItemAddonOptions
+                                .add(newValue);
+                          }
+                        });
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-          ...{"Cookie": 11.0, "Marshmallow": 11.0, "Chocolate": 11.0}
-              .entries
-              .map((addOn) {
-            return CheckboxListTile(
-              title: Text(addOn.key),
-              subtitle: Text("AUD ${addOn.value}"),
-              value: widget.item.addOns.containsKey(addOn.key) &&
-                  widget.item.addOns[addOn.key]!,
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value == true) {
-                    widget.item.addOns[addOn.key] = true;
-                  } else {
-                    widget.item.addOns.remove(addOn.key);
-                  }
-                });
-              },
-            );
-          }).toList(),
           TotalBar(
-            totalPrice: widget.item.getTotalPrice(),
+            totalPrice: widget.orderItem.getTotalPrice(),
             onAddToCart: widget.onAddToCart,
-            item: widget.item,
+            item: widget.orderItem.item,
           ),
         ],
       ),
