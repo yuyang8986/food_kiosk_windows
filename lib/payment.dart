@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/models/order.dart';
+import 'package:mcdo_ui/order-confirmation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cart.dart';
 
@@ -130,7 +132,7 @@ class _MyPaymentState extends State<Payment> {
                 SizedBox(height: 10),
                 Center(
                     child: ButtonTheme(
-                        minWidth: 180.0,
+                        minWidth: 150.0,
                         height: 80.0,
                         child: ElevatedButton(
                           // color: Color.fromRGBO(230, 203, 51, 1),
@@ -141,103 +143,111 @@ class _MyPaymentState extends State<Payment> {
                                 children: <Widget>[
                                   FittedBox(
                                       fit: BoxFit.fitWidth,
-                                      child: Text("Proceed to Payment",
+                                      child: Text("Place Order",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 35)))
+                                              fontSize: 30)))
                                 ]),
                           ),
                           onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  height: 600,
-                                  width: 900,
-                                  color: Color.fromRGBO(43, 124, 58, 1),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text("Payment Successful",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 55,
-                                                color: Colors.white)),
-                                        SizedBox(height: 80),
-                                        if (widget.type == "Eat In")
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Table Number",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                  width:
-                                                      25), // Space between text and TextField
-                                              Container(
-                                                width:
-                                                    150, // Adjust width as needed
-                                                child: TextField(
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 50,
-                                                  ),
-                                                  decoration: InputDecoration(
-                                                    border: OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color: Colors.white,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color: Colors.white,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                        color: Colors.white,
-                                                        width: 2.0,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        SizedBox(height: 80),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, true);
-                                          },
-                                          child: Text("Close",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20)),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ).then((value) {
-                              if (value == true) {
-                                setState(() {});
-                              }
-                            });
+                            String orderNumber =
+                                (1000 + Random().nextInt(9000)).toString();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OrderConfirmation(
+                                      orderNumber: orderNumber)),
+                            );
+                            // showModalBottomSheet(
+                            //   context: context,
+                            //   builder: (BuildContext context) {
+                            //     return Container(
+                            //       height: 600,
+                            //       width: 900,
+                            //       color: Color.fromRGBO(43, 124, 58, 1),
+                            //       child: Center(
+                            //         child: Column(
+                            //           crossAxisAlignment:
+                            //               CrossAxisAlignment.center,
+                            //           mainAxisAlignment:
+                            //               MainAxisAlignment.center,
+                            //           children: <Widget>[
+                            //             Text("Payment Successful",
+                            //                 style: TextStyle(
+                            //                     fontWeight: FontWeight.bold,
+                            //                     fontSize: 55,
+                            //                     color: Colors.white)),
+                            //             SizedBox(height: 80),
+                            //             if (widget.type == "Eat In")
+                            //               Row(
+                            //                 mainAxisAlignment:
+                            //                     MainAxisAlignment.center,
+                            //                 children: [
+                            //                   Text(
+                            //                     "Table Number",
+                            //                     style: TextStyle(
+                            //                       color: Colors.white,
+                            //                       fontSize: 30,
+                            //                     ),
+                            //                   ),
+                            //                   SizedBox(
+                            //                       width:
+                            //                           25), // Space between text and TextField
+                            //                   Container(
+                            //                     width:
+                            //                         150, // Adjust width as needed
+                            //                     child: TextField(
+                            //                       textAlign: TextAlign.center,
+                            //                       style: TextStyle(
+                            //                         color: Colors.white,
+                            //                         fontSize: 50,
+                            //                       ),
+                            //                       decoration: InputDecoration(
+                            //                         border: OutlineInputBorder(
+                            //                           borderSide: BorderSide(
+                            //                             color: Colors.white,
+                            //                             width: 2.0,
+                            //                           ),
+                            //                         ),
+                            //                         enabledBorder:
+                            //                             OutlineInputBorder(
+                            //                           borderSide: BorderSide(
+                            //                             color: Colors.white,
+                            //                             width: 2.0,
+                            //                           ),
+                            //                         ),
+                            //                         focusedBorder:
+                            //                             OutlineInputBorder(
+                            //                           borderSide: BorderSide(
+                            //                             color: Colors.white,
+                            //                             width: 2.0,
+                            //                           ),
+                            //                         ),
+                            //                       ),
+                            //                     ),
+                            //                   ),
+                            //                 ],
+                            //               ),
+                            //             SizedBox(height: 80),
+                            //             ElevatedButton(
+                            //               onPressed: () {
+                            //                 Navigator.pop(context, true);
+                            //               },
+                            //               child: Text("Close",
+                            //                   style: TextStyle(
+                            //                       fontWeight: FontWeight.bold,
+                            //                       fontSize: 20)),
+                            //             )
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     );
+                            //   },
+                            // ).then((value) {
+                            //   if (value == true) {
+                            //     setState(() {});
+                            //   }
+                            // });
                           },
                           // shape: RoundedRectangleBorder(
                           //     borderRadius:
@@ -253,12 +263,9 @@ class _MyPaymentState extends State<Payment> {
   Widget listItem(int position) {
     return Row(children: <Widget>[
       SizedBox(width: 15),
-      CircleAvatar(
-        backgroundColor: Colors.white,
-        radius: 35,
-        child: Image.memory(
-          order.orderItems[position].item.itemImage as Uint8List,
-        ),
+      Image.memory(
+        height: 50,
+        order.orderItems[position].item.itemImage as Uint8List,
       ),
       SizedBox(width: 20),
       FittedBox(

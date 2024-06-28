@@ -62,26 +62,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 Row(children: <Widget>[
                   Spacer(flex: 5),
                   ButtonTheme(
-                      minWidth: 100.0,
-                      height: 125.0,
+                      minWidth: 130.0,
+                      height: 165.0,
                       child: ElevatedButton(
                         // color: Colors.white,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Image.asset(
-                                'assets/in.png',
+                                'assets/dinein.png',
                                 height: 80.0,
                                 width: 80.0,
                                 fit: BoxFit.cover,
                               ),
                               SizedBox(height: 10.0),
-                              Text("Eat In",
-                                  style: TextStyle(fontWeight: FontWeight.bold))
+                              // Text("Dine In",
+                              //     style: TextStyle(fontWeight: FontWeight.bold))
                             ]),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Eat In")));
+                              builder: (context) => Chooser(type: "Dine In")));
                         },
                         // shape: RoundedRectangleBorder(
                         //     borderRadius: new BorderRadius.circular(20.0)
@@ -89,26 +89,27 @@ class _MyHomePageState extends State<MyHomePage> {
                       )),
                   Spacer(),
                   ButtonTheme(
-                      minWidth: 100.0,
-                      height: 125.0,
+                      minWidth: 180.0,
+                      height: 285.0,
                       child: ElevatedButton(
                         // color: Colors.white,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Image.asset(
-                                'assets/out.png',
+                                'assets/takeaway.jpg',
                                 height: 80.0,
                                 width: 80.0,
                                 fit: BoxFit.cover,
                               ),
                               SizedBox(height: 10.0),
-                              Text("Take Out",
-                                  style: TextStyle(fontWeight: FontWeight.bold))
+                              // Text("Take Away",
+                              //     style: TextStyle(fontWeight: FontWeight.bold))
                             ]),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Take Out")));
+                              builder: (context) =>
+                                  Chooser(type: "Take Away")));
                         },
                         //Navigator.of(context).push(MaterialPageRoute(builder: (context) => Anim()));},
                         // shape: RoundedRectangleBorder(

@@ -235,47 +235,71 @@ class _MyChooserState extends State<Chooser> {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                color: Color.fromRGBO(246, 246, 246, 1)),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 100,
-                                  ),
-                                  Container(
-                                      margin: const EdgeInsets.only(left: 20.0),
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(category,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 19)),
-                                            SizedBox(height: 7),
-                                            Text(widget.type,
-                                                style: TextStyle(fontSize: 14))
-                                          ])),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Expanded(
-                                      child: ListView.builder(
-                                    itemCount: filteredItems.length,
-                                    itemBuilder: (context, position) {
-                                      return Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 10),
-                                        child: listItem(position),
-                                      );
-                                    },
-                                  ))
-                                ]),
-                          ),
-                          flex: 3,
+                        FutureBuilder(
+                          future: futureMenu,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${snapshot.error}'));
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Center(child: Text('No data available'));
+                            } else {
+                              if (category == "All")
+                                filteredItems = snapshot.data!
+                                    .expand((e) => e.items)
+                                    .toList();
+                              return Expanded(
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromRGBO(246, 246, 246, 1)),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        SizedBox(
+                                          height: 100,
+                                        ),
+                                        Container(
+                                            margin: const EdgeInsets.only(
+                                                left: 20.0),
+                                            child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Text(category,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 19)),
+                                                  SizedBox(height: 7),
+                                                  Text(widget.type,
+                                                      style: TextStyle(
+                                                          fontSize: 14))
+                                                ])),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Expanded(
+                                            child: ListView.builder(
+                                          itemCount: filteredItems.length,
+                                          itemBuilder: (context, position) {
+                                            return Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 10),
+                                              child: listItem(position),
+                                            );
+                                          },
+                                        ))
+                                      ]),
+                                ),
+                                flex: 6,
+                              );
+                            }
+                          },
                         ),
                         Expanded(
                           child: Container(
@@ -330,7 +354,7 @@ class _MyChooserState extends State<Chooser> {
       context: context,
       builder: (BuildContext context) {
         return CartBottomSheet(
-          orderItems: order.orderItems,
+          order: order,
           type: widget.type,
           handlePaymentCompleted: handlePaymentCompleted,
         );
@@ -355,7 +379,8 @@ class _MyChooserState extends State<Chooser> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Image.memory(
-                  height: 110,
+                  height: 130,
+                  width: 130,
                   filteredItems[position].itemImage as Uint8List,
                   fit: BoxFit.contain,
                 ),
@@ -365,7 +390,10 @@ class _MyChooserState extends State<Chooser> {
                     child: Text(filteredItems[position].itemName,
                         style: TextStyle(fontWeight: FontWeight.bold))),
                 SizedBox(height: 20),
-                actionButton(context, position)
+                actionButton(context, position),
+                SizedBox(
+                  height: 20,
+                )
               ]),
         ),
         // if (position != nextPosition)

@@ -8,13 +8,13 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartBottomSheet extends StatefulWidget {
-  final List<OrderItem> orderItems;
+  final Order order;
   final String type;
   final Function handlePaymentCompleted;
 
   const CartBottomSheet({
     Key? key,
-    required this.orderItems,
+    required this.order,
     required this.type,
     required this.handlePaymentCompleted,
   }) : super(key: key);
@@ -26,14 +26,14 @@ class CartBottomSheet extends StatefulWidget {
 class _CartBottomSheetState extends State<CartBottomSheet> {
   void _incrementQuantity(int index) {
     setState(() {
-      widget.orderItems[index].quantity++;
+      widget.order.orderItems[index].quantity++;
     });
   }
 
   void _decrementQuantity(int index) {
-    if (widget.orderItems[index].quantity > 0) {
+    if (widget.order.orderItems[index].quantity > 0) {
       setState(() {
-        widget.orderItems[index].quantity--;
+        widget.order.orderItems[index].quantity--;
       });
     }
   }
@@ -41,7 +41,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
   Future<void> saveOrder() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      List<String> orderJson = widget.orderItems
+      List<String> orderJson = widget.order.orderItems
           .map((orderItem) => jsonEncode(orderItem.toJson()))
           .toList();
       await prefs.setStringList('orderItems', orderJson);
@@ -60,9 +60,9 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: widget.orderItems.length,
+              itemCount: widget.order.orderItems.length,
               itemBuilder: (BuildContext context, int index) {
-                OrderItem orderItem = widget.orderItems[index];
+                OrderItem orderItem = widget.order.orderItems[index];
                 //var parts = orderItem.configKey.split('|');
                 //var addOns = parts.length > 1 ? parts[1].split(':') : <String>[];
 
@@ -113,7 +113,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           ElevatedButton(
             onPressed: () async {
               Navigation.initPaths(
-                  widget.orderItems,
+                  widget.order,
                   widget
                       .type); // Ensure this method is updated to handle OrderItem
               final result = await Navigation.router.navigateTo(
