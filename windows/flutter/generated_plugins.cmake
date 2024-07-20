@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  charset_converter
+  flutter_blue_plugin
   screen_retriever
   window_manager
 )
