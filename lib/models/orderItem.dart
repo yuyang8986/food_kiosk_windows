@@ -36,12 +36,13 @@ class OrderItem {
     return {
       // 'orderItemId': orderItemId,
       // 'orderId': orderId,
-      // 'itemId': itemId,
-      'item': item.toJson(),
-      'order': order.toJson(),
+      'itemId': item.itemId,
+      // 'item': item.toJson(),
+      // 'order': order.toJson(),
       'quantity': quantity,
+      'itemPrice': item.itemPrice,
       'itemAddonOptions':
-          selectedItemAddonOptions.map((iao) => iao.toJson()).toList(),
+          selectedItemAddonOptions.map((iao) => iao.optionId).toList(),
     };
   }
 

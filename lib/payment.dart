@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/helpers/httphelper.dart';
 import 'package:mcdo_ui/models/order.dart';
 import 'package:mcdo_ui/order-confirmation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -149,14 +150,16 @@ class _MyPaymentState extends State<Payment> {
                                               fontSize: 30)))
                                 ]),
                           ),
-                          onPressed: () {
-                            String orderNumber =
-                                (1000 + Random().nextInt(9000)).toString();
+                          onPressed: () async {
+                            var helper = new HttpClientHelper();
+                            var orderNumber = await helper.createOrder(order);
+                            // String orderNumber =
+                            //     (1000 + Random().nextInt(9000)).toString();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => OrderConfirmation(
-                                      orderNumber: orderNumber)),
+                                      orderNumber: orderNumber.toString())),
                             );
                             // showModalBottomSheet(
                             //   context: context,

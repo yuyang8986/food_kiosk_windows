@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mcdo_ui/models/item-category.dart';
+import 'package:mcdo_ui/models/order.dart';
 
 class HttpClientHelper {
-  final String baseUrl = "http://localhost:5000/orders";
+  final String baseUrl = "http://localhost:5224/orders";
 
   Future<http.Response> httpGet(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl$endpoint'));
@@ -13,7 +14,7 @@ class HttpClientHelper {
   Future<http.Response> httpPost(
       String endpoint, Map<String, dynamic> body) async {
     final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse('$endpoint'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(body),
     );
@@ -23,7 +24,7 @@ class HttpClientHelper {
   Future<http.Response> httpPut(
       String endpoint, Map<String, dynamic> body) async {
     final response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse('$endpoint'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(body),
     );
@@ -58,5 +59,19 @@ class HttpClientHelper {
     }
 
     return [];
+  }
+
+  Future<int> createOrder(Order order) async {
+    try {
+      final response = await httpPut('$baseUrl/CreateOrder', order.toJson());
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['orderId'];
+      } else {
+        throw Exception('Failed to create order');
+      }
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to create order');
+    }
   }
 }

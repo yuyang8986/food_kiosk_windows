@@ -33,9 +33,9 @@ class Order {
   Map<String, dynamic> toJson() {
     return {
       // 'orderId': orderId,
-      'orderName': orderName,
-      'orderDescription': orderDescription,
-      'orderPrice': orderPrice,
+      // 'orderName': orderName,
+      // 'orderDescription': orderDescription,
+      // 'orderPrice': orderPrice,
       'orderType': orderType,
       // 'orderDateTime': orderDateTime,
       'orderItems': orderItems.map((oi) => oi.toJson()).toList(),
