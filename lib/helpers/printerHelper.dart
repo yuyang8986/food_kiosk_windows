@@ -2,87 +2,116 @@ import 'dart:async';
 import 'dart:typed_data';
 
 // import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
-import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_printer/esc_pos_printer.dart' as escp;
 import 'package:esc_pos_utils/src/capability_profile.dart';
 import 'package:esc_pos_utils/src/enums.dart';
-import 'package:esc_pos_utils_plus/esc_pos_utils.dart' as escu;
+// import 'package:esc_pos_utils_plus/esc_pos_utils.dart' as escu;
+import 'package:esc_pos_utils/esc_pos_utils.dart' as escu;
+
 import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
 // import 'package:printing/printing.dart';
-import 'package:usb_thermal_printer_web/usb_thermal_printer_web.dart';
+// import 'package:usb_thermal_printer_web/usb_thermal_printer_web.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 
 class PrinterHelper {
   FlutterBlue flutterBlue = FlutterBlue.instance;
-  WebThermalPrinter _printer = WebThermalPrinter();
+  static escp.NetworkPrinter? printer = null;
+
+  static Future<bool> connect(printerIp) async {
+    final profile = await CapabilityProfile.load();
+    printer = escp.NetworkPrinter(PaperSize.mm80, profile);
+
+    final escp.PosPrintResult res =
+        await printer!.connect(printerIp, port: 9100);
+
+    return res == escp.PosPrintResult.success;
+  }
 
   Future<void> printReceipt(
       String printerIp, List<Map<String, dynamic>> items, double total) async {
-    final profile = await CapabilityProfile.load();
-    final printer = NetworkPrinter(PaperSize.mm80, profile);
+    try {
 
-    final PosPrintResult res = await printer.connect(printerIp, port: 9100);
-
-    if (res == PosPrintResult.success) {
-      // final receiptData = await _generateReceipt(items, 100);
-      //await printer.rawBytes(receiptData);
-      await testReceipt(printer);
-      // printer.disconnect();
-    } else {
-      print('Could not connect to printer: $res');
+      if(printer == null)
+      {
+        connect(printerIp);
+      }
+      if (printer != null) {
+        // final receiptData = await _generateReceipt(items, 100);
+        //await printer.rawBytes(receiptData);
+        await testReceipt();
+        // printer!.disconnect();
+      } else {
+        print('Could not connect to printer: ');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
-Future<void> testReceipt(NetworkPrinter printer) {
-  // printer.text(
-  //       'Regular: aA bB cC dD eE fF gG hH iI jJ kK lL mM nN oO pP qQ rR sS tT uU vV wW xX yY zZ');
-  // printer.text('Special 1: àÀ èÈ éÉ ûÛ üÜ çÇ ôÔ',
-  //     styles: escu.PosStyles(codeTable: 'CP1252'));
-  // printer.text('Special 2: blåbærgrød',
-  //     styles: PosStyles(codeTable: 'CP1252'));
+  Future<void> testReceipt() {
+    // Sample data
+    String orderType = 'Take Out';
+    String orderNumber = '00019269';
+    String server = 'Administrator';
+    String dateTime = '2024/7/26 7:58:28';
+    List<Map<String, dynamic>> items = [
+      {
+        'name': 'Espresso',
+        'quantity': 1,
+        'modifiers': ['+1 sugar', '++Extra 1']
+      }
+    ];
+printer!.feed(2);
+    // Print receipt header
+    printer!.text(orderType,
+        styles: escu.PosStyles(align: PosAlign.center, bold: true));
+    printer!.text('Order #: $orderNumber',
+        styles: escu.PosStyles(align: PosAlign.center));
+    printer!.text('Server: $server',
+        styles: escu.PosStyles(align: PosAlign.center));
+    printer!.text('----------------------------',
+        styles: escu.PosStyles(align: PosAlign.center));
 
-  // printer.text('Bold text', styles: PosStyles(bold: true));
-  // printer.text('Reverse text', styles: PosStyles(reverse: true));
-  // printer.text('Underlined text',
-  //     styles: PosStyles(underline: true), linesAfter: 1);
-  // printer.text('Align left', styles: PosStyles(align: PosAlign.left));
-  // printer.text('Align center', styles: PosStyles(align: PosAlign.center));
-  // printer.text('Align right',
-  //     styles: PosStyles(align: PosAlign.right), linesAfter: 1);
-
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-    printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-  printer.text('Text size 200%');
-
-  printer.feed(2);
-  // printer.cut();
-  return Future.value();
-}
+    // Print items
+    for (var item in items) {
+      printer!.text(
+        '${item['quantity']} ${item['name']}',
+        styles: escu.PosStyles(align: PosAlign.left, bold: true),
+      );
+      for (var modifier in item['modifiers']) {
+        printer!.text(
+          '  $modifier',
+          styles: escu.PosStyles(align: PosAlign.left),
+        );
+      }
+    }
+    printer!.feed(2);
+    // Print date and time
+    printer!.text('----------------------------',
+        styles: escu.PosStyles(align: PosAlign.center));
+    printer!.text('Date: $dateTime',
+        styles: escu.PosStyles(align: PosAlign.left));
+    printer!.hr();
+    // printer!.hr();
+    // printer!.hr();
+    // Feed and cut the paper
+    printer!.feed(2);
+    printer!.cut();
+ printer!.feed(2);
+    return Future.value();
+  }
 
   // Connect to a USB printer
-  Future<void> connectToUsbPrinter() async {
-    try {
-      int vendorId = int.parse('04B8', radix: 16);
-      int productId = int.parse('0E32', radix: 16);
-      await _printer.pairDevice(vendorId: vendorId, productId: productId);
-      print('Connected to USB printer');
-    } catch (e) {
-      print('Error connecting to USB printer: $e');
-    }
-  }
+  // Future<void> connectToUsbPrinter() async {
+  //   try {
+  //     int vendorId = int.parse('04B8', radix: 16);
+  //     int productId = int.parse('0E32', radix: 16);
+  //     await printer.pairDevice(vendorId: vendorId, productId: productId);
+  //     print('Connected to USB printer');
+  //   } catch (e) {
+  //     print('Error connecting to USB printer: $e');
+  //   }
+  // }
 
   // Scan for available Bluetooth printers
   Future<List<BluetoothDevice>> scanForPrinters() async {
@@ -137,49 +166,50 @@ Future<void> testReceipt(NetworkPrinter printer) {
   }
 
   //Print receipt for food order
-  // Future<void> printReceipt2(
-  //     String deviceId, List<Map<String, dynamic>> items, double total) async {
-  //   BluetoothDevice device;
+  Future<void> printReceipt2(
+      String deviceId, List<Map<String, dynamic>> items, double total) async {
+    BluetoothDevice device;
 
-  //   try {
-  //     final profile = await CapabilityProfile.load();
-  //     final printer = NetworkPrinter(PaperSize.mm80, profile);
+    try {
+      final profile = await CapabilityProfile.load();
+      final printer = escp.NetworkPrinter(PaperSize.mm80, profile);
 
-  //     final PosPrintResult res = await printer.connect("192.168.1.30", port: 9100);
+      final escp.PosPrintResult res =
+          await printer.connect("192.168.1.30", port: 9100);
 
-  //     if (res == PosPrintResult.success) {
-  //       final receiptData = _generateReceipt(items);
-  //       // await printer.printRaw(receiptData);
-  //       printer.disconnect();
-  //     } else {
-  //       print('Could not connect to printer: $res');
-  //     }
+      if (res == escp.PosPrintResult.success) {
+        // final receiptData = _generateReceipt(items);
+        // await printer.(receiptData);
+        //printer.disconnect();
+      } else {
+        print('Could not connect to printer: $res');
+      }
 
-  //     final profile = await CapabilityProfile.load();
-  //     final generator = Generator(PaperSize.mm80, profile);
-  //     final receiptData = await _generateReceipt(generator, items, total);
+      //final profile = await CapabilityProfile.load();
+      //final generator = Generator(PaperSize.mm80, profile);
+      //final receiptData = await _generateReceipt(generator, items, total);
 
-  //     // List<BluetoothService> services = await device.discoverServices();
-  //     // BluetoothService? service = services.firstWhere((s) => s.uuid.toString() == "your-service-uuid");
+      // List<BluetoothService> services = await device.discoverServices();
+      // BluetoothService? service = services.firstWhere((s) => s.uuid.toString() == "your-service-uuid");
 
-  //     // if (service != null) {
-  //     //   BluetoothCharacteristic? characteristic = service.characteristics
-  //     //       .firstWhere((c) => c.uuid.toString() == "your-characteristic-uuid");
+      // if (service != null) {
+      //   BluetoothCharacteristic? characteristic = service.characteristics
+      //       .firstWhere((c) => c.uuid.toString() == "your-characteristic-uuid");
 
-  //     //   if (characteristic != null) {
-  //     //     await characteristic.write(receiptData, withoutResponse: false);
-  //     //   }
-  //     // }
+      //   if (characteristic != null) {
+      //     await characteristic.write(receiptData, withoutResponse: false);
+      //   }
+      // }
 
-  //     final printer = NetworkPrinter(PaperSize.mm80, profile);
+      //final printer = NetworkPrinter(PaperSize.mm80, profile);
 
-  //     final PosPrintResult res = await printer.connect(printerIp, port: 9100);
-  //   } catch (e) {
-  //     print('Error printing receipt: $e');
-  //   } finally {
-  //     // device.disconnect();
-  //   }
-  // }
+      //final PosPrintResult res = await printer.connect(printerIp, port: 9100);
+    } catch (e) {
+      print('Error printing receipt: $e');
+    } finally {
+      // device.disconnect();
+    }
+  }
 
   //Generate receipt content
   // Future<List<int>> _generateReceipt2(Generator generator,
@@ -260,16 +290,23 @@ Future<void> testReceipt(NetworkPrinter printer) {
   // }
 
   // Generate receipt content
-  Future<List<int>> _generateReceipt(List<Map<String, dynamic>> items, double total)async {
+  Future<List<int>> _generateReceipt(
+      List<Map<String, dynamic>> items, double total) async {
     final profile = await escu.CapabilityProfile.load();
     final generator = escu.Generator(escu.PaperSize.mm80, profile);
     final List<int> bytes = [];
 
     bytes.addAll(generator.text('Restaurant Name',
-        styles: escu.PosStyles(align: escu.PosAlign.center, height: escu.PosTextSize.size2, width: escu.PosTextSize.size2)));
-    bytes.addAll(generator.text('Address Line 1', styles: escu.PosStyles(align: escu.PosAlign.center)));
-    bytes.addAll(generator.text('Address Line 2', styles: escu.PosStyles(align: escu.PosAlign.center)));
-    bytes.addAll(generator.text('Tel: 123-456-7890', styles: escu.PosStyles(align: escu.PosAlign.center)));
+        styles: escu.PosStyles(
+            align: escu.PosAlign.center,
+            height: escu.PosTextSize.size2,
+            width: escu.PosTextSize.size2)));
+    bytes.addAll(generator.text('Address Line 1',
+        styles: escu.PosStyles(align: escu.PosAlign.center)));
+    bytes.addAll(generator.text('Address Line 2',
+        styles: escu.PosStyles(align: escu.PosAlign.center)));
+    bytes.addAll(generator.text('Tel: 123-456-7890',
+        styles: escu.PosStyles(align: escu.PosAlign.center)));
     bytes.addAll(generator.hr());
 
     for (var item in items) {
@@ -296,20 +333,26 @@ Future<void> testReceipt(NetworkPrinter printer) {
       escu.PosColumn(
         text: 'TOTAL',
         width: 6,
-        styles: escu.PosStyles(align: escu.PosAlign.right, height: escu.PosTextSize.size2, width: escu.PosTextSize.size2),
+        styles: escu.PosStyles(
+            align: escu.PosAlign.right,
+            height: escu.PosTextSize.size2,
+            width: escu.PosTextSize.size2),
       ),
       escu.PosColumn(
         text: '$total',
         width: 6,
-        styles: escu.PosStyles(align: escu.PosAlign.right, height: escu.PosTextSize.size2, width: escu.PosTextSize.size2),
+        styles: escu.PosStyles(
+            align: escu.PosAlign.right,
+            height: escu.PosTextSize.size2,
+            width: escu.PosTextSize.size2),
       ),
     ]));
     bytes.addAll(generator.hr(ch: '=', linesAfter: 1));
-    bytes.addAll(generator.text('Thank you!', styles: escu.PosStyles(align: escu.PosAlign.center, bold: true)));
+    bytes.addAll(generator.text('Thank you!',
+        styles: escu.PosStyles(align: escu.PosAlign.center, bold: true)));
 
     bytes.addAll(generator.feed(2));
     bytes.addAll(generator.cut());
     return bytes;
   }
-
 }
