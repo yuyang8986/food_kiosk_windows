@@ -66,17 +66,17 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _printReceipt() {
-    if (_selectedDeviceId != null) {
-      List<Map<String, dynamic>> items = [
-        {'name': 'Burger', 'quantity': 2, 'price': 5.0, 'total': 10.0},
-        {'name': 'Fries', 'quantity': 1, 'price': 3.0, 'total': 3.0},
-      ];
-      double total = 13.0;
+  // void _printReceipt() {
+  //   if (_selectedDeviceId != null) {
+  //     List<Map<String, dynamic>> items = [
+  //       {'name': 'Burger', 'quantity': 2, 'price': 5.0, 'total': 10.0},
+  //       {'name': 'Fries', 'quantity': 1, 'price': 3.0, 'total': 3.0},
+  //     ];
+  //     double total = 13.0;
 
-      _printerHelper.printReceipt(_selectedDeviceId!, items, total);
-    }
-  }
+  //     _printerHelper.printReceipt(_selectedDeviceId!, items, total);
+  //   }
+  // }
 
   // var _scanResults = <BlueScanResult>[];
 
@@ -169,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                     ];
                     double total = 13.0;
-                    _printerHelper.printReceipt("192.168.1.30", items, total);
+                    // _printerHelper.printReceipt("192.168.1.30", items, total);
                   },
                   // shape: RoundedRectangleBorder(
                   //     borderRadius: new BorderRadius.circular(20.0)
@@ -191,29 +191,34 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   }).toList(),
                 ),
-                ElevatedButton(
-                  onPressed: _printReceipt,
-                  child: Text('Print Receipt'),
-                ),
+                // ElevatedButton(
+                //   onPressed: _printReceipt,
+                //   child: Text('Print Receipt'),
+                // ),
                 Row(children: <Widget>[
                   Spacer(flex: 5),
                   ButtonTheme(
                       minWidth: 130.0,
-                      height: 165.0,
+                      // minHeight: 185.0,
                       child: ElevatedButton(
+                        style: ButtonStyle(
+                            padding:
+                                WidgetStateProperty.all(EdgeInsets.all(30.0))),
                         // color: Colors.white,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Image.asset(
-                                'assets/dinein.png',
-                                height: 80.0,
-                                width: 80.0,
-                                fit: BoxFit.cover,
-                              ),
-                              SizedBox(height: 10.0),
-                              // Text("Dine In",
-                              //     style: TextStyle(fontWeight: FontWeight.bold))
+                              // Image.asset(
+                              //   'assets/dinein.png',
+                              //   height: 80.0,
+                              //   width: 80.0,
+                              //   fit: BoxFit.cover,
+                              // ),
+                              // SizedBox(height: 10.0),
+                              Text("Dine In",
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold))
                             ]),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
@@ -226,21 +231,26 @@ class _MyHomePageState extends State<MyHomePage> {
                   Spacer(),
                   ButtonTheme(
                       minWidth: 180.0,
-                      height: 285.0,
+                      // height: 285.0,
                       child: ElevatedButton(
                         // color: Colors.white,
+                        style: ButtonStyle(
+                            padding:
+                                WidgetStateProperty.all(EdgeInsets.all(30.0))),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Image.asset(
-                                'assets/takeaway.jpg',
-                                height: 80.0,
-                                width: 80.0,
-                                fit: BoxFit.cover,
-                              ),
-                              SizedBox(height: 10.0),
-                              // Text("Take Away",
-                              //     style: TextStyle(fontWeight: FontWeight.bold))
+                              // Image.asset(
+                              //   'assets/takeaway.jpg',
+                              //   height: 80.0,
+                              //   width: 80.0,
+                              //   fit: BoxFit.cover,
+                              // ),
+                              // SizedBox(height: 10.0),
+                              Text("Take Away",
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold))
                             ]),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(

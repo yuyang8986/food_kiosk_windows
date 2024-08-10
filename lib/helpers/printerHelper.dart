@@ -9,6 +9,7 @@ import 'package:esc_pos_utils/src/enums.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart' as escu;
 
 import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
+import 'package:mcdo_ui/models/orderItem.dart';
 // import 'package:printing/printing.dart';
 // import 'package:usb_thermal_printer_web/usb_thermal_printer_web.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
@@ -28,17 +29,15 @@ class PrinterHelper {
   }
 
   Future<void> printReceipt(
-      String printerIp, List<Map<String, dynamic>> items, double total) async {
+      String printerIp, List<OrderItem> items, double total) async {
     try {
-
-      if(printer == null)
-      {
+      if (printer == null) {
         connect(printerIp);
       }
       if (printer != null) {
         // final receiptData = await _generateReceipt(items, 100);
         //await printer.rawBytes(receiptData);
-        await testReceipt();
+        await testReceipt(items, total);
         // printer!.disconnect();
       } else {
         print('Could not connect to printer: ');
@@ -48,20 +47,15 @@ class PrinterHelper {
     }
   }
 
-  Future<void> testReceipt() {
+  Future<void> testReceipt(List<OrderItem> items, double total) {
     // Sample data
     String orderType = 'Take Out';
     String orderNumber = '00019269';
     String server = 'Administrator';
     String dateTime = '2024/7/26 7:58:28';
-    List<Map<String, dynamic>> items = [
-      {
-        'name': 'Espresso',
-        'quantity': 1,
-        'modifiers': ['+1 sugar', '++Extra 1']
-      }
-    ];
-printer!.feed(2);
+
+    printer!.feed(2);
+
     // Print receipt header
     printer!.text(orderType,
         styles: escu.PosStyles(align: PosAlign.center, bold: true));
@@ -73,31 +67,35 @@ printer!.feed(2);
         styles: escu.PosStyles(align: PosAlign.center));
 
     // Print items
-    for (var item in items) {
+    for (var orderItem in items) {
       printer!.text(
-        '${item['quantity']} ${item['name']}',
+        '${orderItem.quantity} ${orderItem.item.itemName}', // assuming `itemName` is a property of `Item`
         styles: escu.PosStyles(align: PosAlign.left, bold: true),
       );
-      for (var modifier in item['modifiers']) {
+
+      for (var addonOption in orderItem.selectedItemAddonOptions) {
         printer!.text(
-          '  $modifier',
+          '  ${addonOption.optionName}', // assuming `name` is a property of `ItemAddonOption`
           styles: escu.PosStyles(align: PosAlign.left),
         );
       }
     }
+
     printer!.feed(2);
+
     // Print date and time
     printer!.text('----------------------------',
         styles: escu.PosStyles(align: PosAlign.center));
-    printer!.text('Date: $dateTime',
-        styles: escu.PosStyles(align: PosAlign.left));
+    printer!
+        .text('Date: $dateTime', styles: escu.PosStyles(align: PosAlign.left));
+
     printer!.hr();
-    // printer!.hr();
-    // printer!.hr();
+
     // Feed and cut the paper
     printer!.feed(2);
     printer!.cut();
- printer!.feed(2);
+    printer!.feed(2);
+
     return Future.value();
   }
 

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/helpers/httphelper.dart';
+import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:mcdo_ui/models/order.dart';
 import 'package:mcdo_ui/order-confirmation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -153,6 +154,25 @@ class _MyPaymentState extends State<Payment> {
                           onPressed: () async {
                             var helper = new HttpClientHelper();
                             var orderNumber = await helper.createOrder(order);
+
+                            // List<Map<String, dynamic>> items = [
+                            //   {
+                            //     'name': 'Burger',
+                            //     'quantity': 2,
+                            //     'price': 5.0,
+                            //     'total': 10.0
+                            //   },
+                            //   {
+                            //     'name': 'Fries',
+                            //     'quantity': 1,
+                            //     'price': 3.0,
+                            //     'total': 3.0
+                            //   },
+                            // ];
+                            // double total = 13.0;
+                            var printHelper = PrinterHelper();
+                            printHelper.printReceipt("192.168.1.30",
+                                order.orderItems, order.orderPrice);
                             // String orderNumber =
                             //     (1000 + Random().nextInt(9000)).toString();
                             Navigator.push(
@@ -264,10 +284,11 @@ class _MyPaymentState extends State<Payment> {
   }
 
   Widget listItem(int position) {
-    return Row(children: <Widget>[
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
       SizedBox(width: 15),
       Image.memory(
         height: 50,
+        width: 120,
         order.orderItems[position].item.itemImage as Uint8List,
       ),
       SizedBox(width: 20),
@@ -295,7 +316,7 @@ class _MyPaymentState extends State<Payment> {
               height: 25.0,
               buttonColor: Color.fromRGBO(246, 246, 246, 1),
               child: ElevatedButton(
-                  child: Text("-"),
+                  child: Text("-", style: TextStyle(fontSize: 20)),
                   onPressed: () {
                     setState(() {
                       order.orderItems[position].remove(1);
@@ -318,7 +339,7 @@ class _MyPaymentState extends State<Payment> {
               height: 25.0,
               buttonColor: Color.fromRGBO(230, 203, 51, 1),
               child: ElevatedButton(
-                  child: Text("+"),
+                  child: Text("+", style: TextStyle(fontSize: 20)),
                   onPressed: () {
                     setState(() {
                       order.orderItems[position].add();
