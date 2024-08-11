@@ -17,31 +17,41 @@ import 'package:mcdo_ui/models/orderItem.dart';
 class PrinterHelper {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   static escp.NetworkPrinter? printer = null;
+  static bool connected = false;
 
   static Future<bool> connect(printerIp) async {
-    final profile = await CapabilityProfile.load();
+   if(!connected)
+   {
+     final profile = await CapabilityProfile.load();
     printer = escp.NetworkPrinter(PaperSize.mm80, profile);
 
     final escp.PosPrintResult res =
         await printer!.connect(printerIp, port: 9100);
+    
+    if(res == escp.PosPrintResult.success)
+    {
+      connected = true;
+    }
 
     return res == escp.PosPrintResult.success;
+   }
+   return true;
   }
 
   Future<void> printReceipt(
       String printerIp, List<OrderItem> items, double total) async {
     try {
-      if (printer == null) {
-        connect(printerIp);
-      }
-      if (printer != null) {
+      // if (printer == null) {
+        // await connect(printerIp);
+      // }
+      // if (printer != null) {
         // final receiptData = await _generateReceipt(items, 100);
         //await printer.rawBytes(receiptData);
         await testReceipt(items, total);
         // printer!.disconnect();
-      } else {
-        print('Could not connect to printer: ');
-      }
+      // } else {
+        // print('Could not connect to printer: ');
+      // }
     } catch (e) {
       print(e);
     }
