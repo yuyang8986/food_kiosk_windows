@@ -171,8 +171,8 @@ class _MyPaymentState extends State<Payment> {
                             // ];
                             // double total = 13.0;
                             var printHelper = PrinterHelper();
-                            await PrinterHelper.connect("192.168.1.30");
-                            await printHelper.printReceipt("192.168.1.30",
+                            await PrinterHelper.connect(PrinterHelper.printerIP);
+                            await printHelper.printReceipt(PrinterHelper.printerIP,
                                 order.orderItems, order.orderPrice);
                             // String orderNumber =
                             //     (1000 + Random().nextInt(9000)).toString();
