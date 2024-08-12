@@ -18,6 +18,12 @@ class PrinterHelper {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   static escp.NetworkPrinter? printer = null;
   static bool connected = false;
+  static String printerIP = '';
+
+  static void setPrinterIP(ip)
+  {
+    printerIP = ip;
+  }
 
   static Future<bool> connect(printerIp) async {
    if(!connected)

@@ -61,6 +61,23 @@ class HttpClientHelper {
     return [];
   }
 
+   Future<List<ItemCategory>> fetchPrinterIP() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/GetPrinterIP'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((data) => ItemCategory.fromJson(data)).toList();
+      } else {
+        throw Exception('Failed to load menu');
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    return [];
+  }
+
   Future<int> createOrder(Order order) async {
     try {
       final response = await httpPut('$baseUrl/CreateOrder', order.toJson());
