@@ -4,7 +4,7 @@ import 'package:mcdo_ui/models/item-category.dart';
 import 'package:mcdo_ui/models/order.dart';
 
 class HttpClientHelper {
-  final String baseUrl = "http://localhost:5224/orders";
+  final String baseUrl = "http://localhost:5000/orders";
 
   Future<http.Response> httpGet(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl$endpoint'));
