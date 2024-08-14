@@ -24,8 +24,8 @@ class LabelConstrainedBox extends StatelessWidget with ATempWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      width: pageWidth.w,
-      height: pageHeight.w,
+      // width: pageWidth.w,
+      // height: pageHeight.w,
       child: ColorFiltered(
         colorFilter: const ColorFilter.mode(
           Colors.black,
@@ -43,7 +43,7 @@ class LabelConstrainedBox extends StatelessWidget with ATempWidget {
   int get pixelPagerHeight => pageHeight;
 
   @override
-  double get pixelRatio => 1 / 1.w;
+  double get pixelRatio => 1 / 1;
 }
 
 
@@ -54,7 +54,7 @@ class LabelStyleWidget extends StatelessWidget {
   Widget _title() {
     return Text(
       '588',
-      style: TextStyle(fontSize: 62.w, fontWeight: FontWeight.w700, height: 1),
+      style: TextStyle(fontSize: 62, fontWeight: FontWeight.w700, height: 1),
     );
   }
 
@@ -66,13 +66,13 @@ class LabelStyleWidget extends StatelessWidget {
         Text(
           '[外卖]',
           style:
-              TextStyle(fontSize: 30.w, fontWeight: FontWeight.w700, height: 1),
+              TextStyle(fontSize: 30, fontWeight: FontWeight.w700, height: 1),
         ),
         const Spacer(),
         Text(
           '30分钟内饮用口感更佳',
           style:
-              TextStyle(fontSize: 14.w, fontWeight: FontWeight.w400, height: 1),
+              TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1),
         ),
       ],
     );
@@ -81,7 +81,7 @@ class LabelStyleWidget extends StatelessWidget {
   Widget _productName() {
     return Text(
       '霸气手摇草莓',
-      style: TextStyle(fontSize: 34.w, fontWeight: FontWeight.w700),
+      style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700),
     );
   }
 
@@ -102,7 +102,7 @@ class LabelStyleWidget extends StatelessWidget {
   Widget _tip() {
     return Text(
       '"嘿嘿嘿~\n①杯好茶①起喝',
-      style: TextStyle(fontSize: 17.w, fontWeight: FontWeight.w400),
+      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
     );
   }
 
@@ -115,18 +115,18 @@ class LabelStyleWidget extends StatelessWidget {
         Text(
           '08-30 13:35',
           style: TextStyle(
-            fontSize: 15.w,
+            fontSize: 15,
             fontWeight: FontWeight.w400,
           ),
         ),
         Text('杭州店',
             style: TextStyle(
-              fontSize: 15.w,
+              fontSize: 15,
               fontWeight: FontWeight.w400,
             )),
         Text('电话：123-1234-1234',
             style: TextStyle(
-              fontSize: 15.w,
+              fontSize: 15,
               fontWeight: FontWeight.w400,
             )),
       ],
@@ -161,8 +161,8 @@ class LabelStyleWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Divider(
             color: const Color(0xff242524),
-            height: 10.w,
-            thickness: 3.w,
+            height: 10,
+            thickness: 3,
           ),
           const SizedBox(height: 8),
           _productName(),
@@ -175,8 +175,8 @@ class LabelStyleWidget extends StatelessWidget {
             padding: const EdgeInsets.only(right: 98),
             child: Divider(
               color: const Color(0xff242524),
-              height: 10.w,
-              thickness: 3.w,
+              height: 10,
+              thickness: 3,
             ),
           ),
           const SizedBox(height: 16),
@@ -300,7 +300,7 @@ class _BaseGenerateWidgetState extends State<BaseGenerateWidget> {
                   ),
                 ],
               ),
-              SizedBox(height: 20.w),
+              SizedBox(height: 20),
               widget.child(),
             ],
           ),
@@ -335,39 +335,39 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
           '测试打印小票',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 34.w,
+            fontSize: 34,
             fontWeight: FontWeight.bold,
           ),
         ),
         SizedBox(
-          height: 5.w,
+          height: 5,
         ),
         Text(
           '测试打印1',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 24.w,
+            fontSize: 24,
           ),
         ),
         Text(
           '测试打印2',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 24.w,
+            fontSize: 24,
           ),
         ),
         Text(
           '测试打印3',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 24.w,
+            fontSize: 24,
           ),
         ),
         Text(
           '123456',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 24.w,
+            fontSize: 24,
           ),
         ),
       ],

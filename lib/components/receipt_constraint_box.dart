@@ -21,7 +21,7 @@ class ReceiptConstrainedBox extends StatelessWidget with ATempWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      width: pageWidth.w,
+      // width: pageWidth,
       child: ColorFiltered(
         colorFilter: const ColorFilter.mode(
           Colors.black,
@@ -36,5 +36,5 @@ class ReceiptConstrainedBox extends StatelessWidget with ATempWidget {
   int get pixelPagerWidth => pageWidth;
 
   @override
-  double get pixelRatio => 1 / 1.w;
+  double get pixelRatio => 1 / 1;
 }

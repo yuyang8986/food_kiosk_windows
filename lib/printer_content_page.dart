@@ -37,7 +37,7 @@ class PrinterContentWidget extends StatelessWidget {
         title: _title(context),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.w),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: ListView.separated(
           shrinkWrap: true,
           itemCount: funcs.length,
