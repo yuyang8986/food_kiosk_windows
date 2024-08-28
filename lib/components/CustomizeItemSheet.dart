@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/components/TotalBar.dart';
 import 'package:mcdo_ui/models/item-addon-option.dart';
-import 'package:mcdo_ui/models/item.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
 
 class CustomizeItemSheet extends StatefulWidget {
@@ -102,8 +101,11 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
                       onChanged: (ItemAddonOption? newValue) {
                         if (newValue != null) {
                           setState(() {
+                            // Remove the old selected option for this addon
                             widget.orderItem.selectedItemAddonOptions
                                 .removeWhere((ItemAddonOption iao) => iao.itemAddonId == ia.itemAddonId);
+                            
+                            // Add the new selected option
                             widget.orderItem.selectedItemAddonOptions.add(newValue);
                           });
                         }
@@ -116,11 +118,15 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
           TotalBar(
             totalPrice: widget.orderItem.getTotalPrice(),
             onAddToCart: (OrderItem orderItem) {
-              widget.onAddToCart(orderItem); // Add the order item to the cart with the correct quantity
-              Navigator.pop(context); // Close the sheet
-            },
-            orderItem: widget.orderItem, // Pass the entire OrderItem to TotalBar
+            // Debugging print statement to check selected options
+            print('Selected options for ${orderItem.item.itemName}: ${orderItem.selectedItemAddonOptions}');
+            
+            widget.onAddToCart(orderItem);  // This should pass the correct options and quantities
+            Navigator.pop(context);  // Close the sheet
+          },
+            orderItem: widget.orderItem,  // Pass the entire OrderItem object to the cart
           ),
+
         ],
       ),
     );

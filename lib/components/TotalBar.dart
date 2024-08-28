@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mcdo_ui/item.dart';
-import 'package:mcdo_ui/models/item.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
 
 class TotalBar extends StatelessWidget {

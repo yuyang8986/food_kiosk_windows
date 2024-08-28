@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 // import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:esc_pos_printer/esc_pos_printer.dart' as escp;
 import 'package:esc_pos_utils/src/capability_profile.dart';
