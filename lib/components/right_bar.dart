@@ -81,26 +81,31 @@ class RightBar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SizedBox(
-            height: 150,
-            width: 150,
-            child: Image.memory(
-              filteredItems[position].itemImage as Uint8List,
-              fit: BoxFit.contain,
-            ),
-          ),
-          SizedBox(height: 20),
-          FittedBox(
-            fit: BoxFit.fitWidth,
-            child: Text(
-              filteredItems[position].itemName,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.all(8.0), // Add some padding to prevent overflow
+              child: Image.memory(
+                filteredItems[position].itemImage as Uint8List,
+                fit: BoxFit.contain,
               ),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10), // Reduced height to avoid overflow
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(
+                filteredItems[position].itemName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  overflow: TextOverflow.ellipsis, // Add ellipsis to handle overflow
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 10), // Reduced height to avoid overflow
           ElevatedButton(
             onPressed: () {
               onAddToCartPressed(position);
@@ -124,4 +129,5 @@ class RightBar extends StatelessWidget {
       ),
     );
   }
+
 }
