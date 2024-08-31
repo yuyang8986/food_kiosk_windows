@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
 import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
 import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:window_manager/window_manager.dart';
 import 'chooser.dart';
-import 'package:flutter/services.dart';
-import 'animationTest.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());

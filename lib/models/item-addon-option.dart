@@ -32,4 +32,9 @@ class ItemAddonOption {
       'itemAddonId': itemAddonId,
     };
   }
+
+  @override
+  String toString() {
+    return 'ItemAddonOption(optionId: $optionId, optionName: $optionName, price: $price)';
+  }
 }

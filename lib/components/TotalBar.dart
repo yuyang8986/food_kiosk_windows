@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:mcdo_ui/item.dart';
-import 'package:mcdo_ui/models/item.dart';
+import 'package:mcdo_ui/models/orderItem.dart';
 
 class TotalBar extends StatelessWidget {
   final double totalPrice;
-  final Function(Item) onAddToCart;
-  final Item item;
+  final Function(OrderItem) onAddToCart;
+  final OrderItem orderItem;
 
-  const TotalBar(
-      {Key? key,
-      required this.totalPrice,
-      required this.onAddToCart,
-      required this.item})
-      : super(key: key);
+  const TotalBar({
+    Key? key,
+    required this.totalPrice,
+    required this.onAddToCart,
+    required this.orderItem,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +42,7 @@ class TotalBar extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              onAddToCart(item);
-              Navigator.pop(context);
+              onAddToCart(orderItem); // Pass the entire OrderItem with the correct quantity
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,

@@ -47,14 +47,17 @@ class OrderItem {
   }
 
   double getTotalPrice() {
-    double totalPricePerItem = item.itemPrice;
-    for (var option in selectedItemAddonOptions) {
-      if (option.price > 0) {
-        totalPricePerItem += option.price;
-      }
-    }
-    return totalPricePerItem * quantity;
+  double totalPricePerItem = item.itemPrice;
+  
+  // Add prices of selected addons
+  for (var option in selectedItemAddonOptions) {
+    totalPricePerItem += option.price;
   }
+
+  // Multiply by the quantity
+  return totalPricePerItem * quantity;
+}
+
 
   void remove(int quantityToRemove) {
     quantity -= quantityToRemove;
