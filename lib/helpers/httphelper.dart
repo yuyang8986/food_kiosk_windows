@@ -4,9 +4,9 @@ import 'package:mcdo_ui/models/item-category.dart';
 import 'package:mcdo_ui/models/order.dart';
 
 class HttpClientHelper {
-  // Update the base URL to the new API URL provided by the client
   final String baseUrl = "https://webapp-240827124047.azurewebsites.net/orders";
 
+  // final String baseUrl = "http://localhost:5000/orders";
 
   Future<http.Response> httpGet(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl$endpoint'));
