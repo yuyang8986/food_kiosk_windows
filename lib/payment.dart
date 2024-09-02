@@ -1,4 +1,3 @@
-
 // import 'dart:typed_data';
 // import 'package:flutter/material.dart';
 // import 'package:mcdo_ui/helpers/httphelper.dart';
@@ -353,16 +352,21 @@
 // }
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:mcdo_ui/components/label_constraint_box.dart';
+import 'package:mcdo_ui/components/receipt_constraint_box.dart';
 import 'package:mcdo_ui/helpers/httphelper.dart';
 import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:mcdo_ui/models/order.dart';
 import 'package:mcdo_ui/order-confirmation.dart';
+import 'package:mcdo_ui/printer_info.dart';
+import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 
 class Payment extends StatefulWidget {
   final Order order;
   final String type; // Eat in or Take out
+  final PrinterInfo printerInfo;
 
-  Payment({required this.order, required this.type});
+  Payment({required this.printerInfo, required this.order, required this.type});
 
   @override
   _MyPaymentState createState() => _MyPaymentState();
@@ -475,21 +479,52 @@ class _MyPaymentState extends State<Payment> {
                         ],
                       ),
                     ),
-                    onPressed: () async {
+                    onPressed: ()  {
                       var helper = HttpClientHelper();
-                      var orderNumber = await helper.createOrder(order);
-                      var printHelper = PrinterHelper();
-                      await PrinterHelper.connect(PrinterHelper.printerIP);
-                      await printHelper.printReceipt(
-                          PrinterHelper.printerIP, order.orderItems, order.orderPrice);
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              OrderConfirmation(orderNumber: orderNumber.toString()),
+                       helper.createOrder(order).then((value) => {
+                      // PrinterHelper.currentOrderToPrinter = order
+
+                      // 预览小票
+                      PictureGeneratorProvider.instance.addPicGeneratorTask(
+                        PicGenerateTask<PrinterInfo>(
+                          tempWidget: const ReceiptConstrainedBox(
+                            ReceiptStyleWidget(),
+                            pageWidth: 550,
+                          ),
+                          printTypeEnum: PrintTypeEnum.receipt,
+                          params: widget.printerInfo,
                         ),
-                      );
+                       )
+                       });
+                      // var orderNumber = 
+                      // var printHelper = PrinterHelper();
+                      // await PrinterHelper.connect(PrinterHelper.printerIP);
+                      // await printHelper.printReceipt(
+                      //     PrinterHelper.printerIP, order.orderItems, order.orderPrice);
+                      
+
+                      // Future.sync(() => {
+                      //    PictureGeneratorProvider.instance.addPicGeneratorTask(
+                      //   PicGenerateTask<PrinterInfo>(
+                      //     tempWidget: const ReceiptConstrainedBox(
+                      //       ReceiptStyleWidget(),
+                      //       pageWidth: 550,
+                      //     ),
+                      //     printTypeEnum: PrintTypeEnum.receipt,
+                      //     params: PrinterHelper.usbPrinter,
+                      //   ),
+                      // )
+                      // });
+
+                      // PrinterHelper.performCommand();
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) =>
+                      //         OrderConfirmation(orderNumber: orderNumber.toString()),
+                      //   ),
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
@@ -528,7 +563,8 @@ class _MyPaymentState extends State<Payment> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   )),
-              if (order.orderItems[position].selectedItemAddonOptions.isNotEmpty)
+              if (order
+                  .orderItems[position].selectedItemAddonOptions.isNotEmpty)
                 ...order.orderItems[position].selectedItemAddonOptions.map(
                   (addon) {
                     return Text(
@@ -567,8 +603,8 @@ class _MyPaymentState extends State<Payment> {
             SizedBox(width: 10),
             Text(
               order.orderItems[position].quantity.toString(),
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.white),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
             SizedBox(width: 10),
             ElevatedButton(

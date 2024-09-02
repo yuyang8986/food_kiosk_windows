@@ -46,18 +46,21 @@ class CartBar extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: onViewCartPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+          Container(
+            height: 200,
+            child: ElevatedButton(
+              onPressed: onViewCartPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
-            ),
-            child: Text(
-              "VIEW CART",
-              style: TextStyle(color: Colors.black.withOpacity(.9)),
+              child: Text(
+                "VIEW CART",
+                style: TextStyle(color: Colors.black.withOpacity(.9), fontSize: 30),
+              ),
             ),
           ),
         ],

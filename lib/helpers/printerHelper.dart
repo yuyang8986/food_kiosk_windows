@@ -11,10 +11,15 @@ import 'package:esc_pos_utils/esc_pos_utils.dart' as escu;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_printer_plus/flutter_printer_plus.dart';
+import 'package:mcdo_ui/components/label_constraint_box.dart';
+import 'package:mcdo_ui/components/receipt_constraint_box.dart';
+import 'package:mcdo_ui/models/order.dart';
 
 // import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
 // import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
+import 'package:mcdo_ui/printer_info.dart';
+import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 // import 'package:printing/printing.dart';
 // import 'package:usb_thermal_printer_web/usb_thermal_printer_web.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
@@ -25,12 +30,30 @@ class PrinterHelper {
   static bool connected = false;
   static String printerIP = '';
 
+  static PrinterInfo? usbPrinter = null;
+  static Order? currentOrderToPrinter;
+
   static getusbDeviceslist() async {
     List results = [];
     // results = await FlutterUsbPrinter.getUSBDeviceList();
 // 返回 Future<List<UsbDeviceInfo>>
-    results = await FlutterPrinterFinder.queryUsbPrinter() ;
+    results = await FlutterPrinterFinder.queryUsbPrinter();
     print(" length: ${results.length}");
+  }
+
+ performCommand(
+  ) {
+    // 预览小票
+    PictureGeneratorProvider.instance.addPicGeneratorTask(
+          PicGenerateTask<PrinterInfo>(
+            tempWidget: const ReceiptConstrainedBox(
+              ReceiptStyleWidget(),
+              pageWidth: 550,
+            ),
+            printTypeEnum: PrintTypeEnum.receipt,
+            params: usbPrinter,
+          ),
+        );
   }
 
   // static FlutterUsbPrinter flutterUsbPrinter = FlutterUsbPrinter();
@@ -83,7 +106,6 @@ class PrinterHelper {
 //       //response = 'Failed to get platform version.';
 //     }
 // }
-
 
   Future<void> printReceipt(
       String printerIp, List<OrderItem> items, double total) async {

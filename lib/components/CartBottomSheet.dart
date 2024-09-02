@@ -142,6 +142,7 @@ import 'package:flutter/material.dart';
 import 'package:mcdo_ui/chooser.dart'; // This is where the Navigation class is defined
 import 'package:mcdo_ui/models/order.dart'; // Ensure correct path to the Order model
 import 'package:mcdo_ui/models/orderItem.dart';
+import 'package:mcdo_ui/printer_info.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -149,9 +150,11 @@ class CartBottomSheet extends StatefulWidget {
   final Order order;
   final String type;
   final Function handlePaymentCompleted;
+  final PrinterInfo printerInfo;
 
   const CartBottomSheet({
     Key? key,
+    required this.printerInfo,
     required this.order,
     required this.type,
     required this.handlePaymentCompleted,
@@ -250,6 +253,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
               Navigation.initPaths(
                 widget.order,
                 widget.type,
+                widget.printerInfo
               ); // Ensure this method is updated to handle OrderItem
 
               final result = await Navigation.router.navigateTo(

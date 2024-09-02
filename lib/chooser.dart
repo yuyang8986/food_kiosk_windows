@@ -1,5 +1,10 @@
+// import 'dart:ui' as dui;
+
+import 'dart:ui';
+import 'package:flutter/src/widgets/image.dart' as fui;
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_printer_plus/flutter_printer_plus.dart';
 import 'package:mcdo_ui/components/CartBottomSheet.dart';
 import 'package:mcdo_ui/components/CustomizeItemSheet.dart';
 import 'package:mcdo_ui/components/left_bar.dart';
@@ -10,23 +15,25 @@ import 'package:mcdo_ui/models/item.dart';
 import 'package:mcdo_ui/models/order.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
 import 'package:mcdo_ui/payment.dart';
+import 'package:mcdo_ui/printer_info.dart';
+import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 
 
 class Navigation {
   static final router = FluroRouter();
   static bool _routesDefined = false;
 
-  static void initPaths(order, type) {
+  static void initPaths(order, type, printerInfo) {
     if (!_routesDefined) {
       var chooserHandler = Handler(
         handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-          return Chooser(type: type);
+          return Chooser(type: type, printerInfo: printerInfo,);
         },
       );
 
       var paymentHandler = Handler(
         handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
-          return Payment(order: order, type: type);
+          return Payment(order: order, type: type, printerInfo: printerInfo,);
         },
       );
 
@@ -43,8 +50,9 @@ class Navigation {
 
 class Chooser extends StatefulWidget {
   final String type; // Eat in or Take out
+  final PrinterInfo printerInfo;
 
-  Chooser({required this.type});
+  Chooser({required this.printerInfo, required this.type});
 
   @override
   _MyChooserState createState() => _MyChooserState();
@@ -130,11 +138,44 @@ class _MyChooserState extends State<Chooser> {
     ),
   );
 }
+Future<void> _onPictureGenerated(PicGenerateResult data) async {
+    final printTask = data.taskItem;
 
+    //指定的打印机
+    final printerInfo = printTask.params;
+    //打印票据类型（标签、小票）
+    final printTypeEnum = printTask.printTypeEnum;
+
+    final imageBytes =
+        await data.convertUint8List(imageByteFormat: ImageByteFormat.rawRgba);
+    //也可以使用 ImageByteFormat.png
+    final argbWidth = data.imageWidth;
+    final argbHeight = data.imageHeight;
+    if (imageBytes == null) {
+      return;
+    }
+    //只要 imageBytes 不是使用 ImageByteFormat.rawRgba 格式转换的 unit8List
+    //argbWidthPx、argbHeightPx 不要传值，默认为空就行
+    var printData = await PrinterCommandTool.generatePrintCmd(
+      imgData: imageBytes,
+      printType: printTypeEnum,
+      argbWidthPx: argbWidth,
+      argbHeightPx: argbHeight,
+    );
+    if (printerInfo.isUsbPrinter) {
+      // usb 打印
+      final conn = UsbConn(printerInfo.usbDevice!);
+      conn.writeMultiBytes(printData, 1024 * 3);
+    } else if (printerInfo.isNetPrinter) {
+      // 网络 打印
+      final conn = NetConn(printerInfo.ip!);
+      conn.writeMultiBytes(printData);
+    }
+  }
 
   @override
 Widget build(BuildContext context) {
-  return Scaffold(
+  var scaffold = Scaffold(
     body: Stack(
       children: [
         Padding(
@@ -167,7 +208,7 @@ Widget build(BuildContext context) {
                 child: RightBar(
                   filteredItems: filteredItems,
                   order: order,
-                  onViewCartPressed: () => showCart(),
+                  onViewCartPressed: () => showCart(widget.printerInfo),
                   onAddToCartPressed: showCustomizeSheet,
                 ),
               ),
@@ -182,7 +223,7 @@ Widget build(BuildContext context) {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
+                fui.Image.asset(
                   'assets/logo.png',
                   height: 100.0,
                   fit: BoxFit.cover,
@@ -194,14 +235,22 @@ Widget build(BuildContext context) {
       ],
     ),
   );
+  
+  return PrintImageGenerateWidget(
+       contentBuilder: (context) {
+       return scaffold;
+       },
+       onPictureGenerated: _onPictureGenerated,  //下面说明
+     );
 }
 
 
-  void showCart() {
+  void showCart(printerInfo) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return CartBottomSheet(
+          printerInfo: printerInfo,
           order: order,
           type: widget.type,
           handlePaymentCompleted: handlePaymentCompleted,

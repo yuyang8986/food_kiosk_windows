@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_printer_plus/flutter_printer_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:mcdo_ui/loading.dart';
 import 'package:mcdo_ui/printer_content_page.dart';
 import 'package:mcdo_ui/printer_info.dart';
@@ -28,6 +29,7 @@ class _PrinterListPageState extends State<PrinterListPage> {
     );
   }
 
+  PrinterInfo? selectedPrinterInfo;
   //搜索网络打印机
   Future<List<PrinterInfo>> queryNetPrinters() async {
     return FlutterPrinterFinder.queryPrinterIp().then(
@@ -101,11 +103,13 @@ class _PrinterItemWidget extends StatelessWidget {
         Expanded(child: Text(printerInfo.name)),
         TextButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => PrinterContentWidget(printerInfo),
-              ),
-            );
+            // PrinterHelper.usbPrinter = printerInfo;
+            // Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (context) => PrinterContentWidget(printerInfo),
+            //   ),
+            // );
+            Navigator.pop(context, printerInfo);
           },
           child: const Text('点击使用'),
         ),

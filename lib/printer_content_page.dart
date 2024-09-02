@@ -49,7 +49,7 @@ class PrinterContentWidget extends StatelessWidget {
             return Center(
               child: TextButton(
                 onPressed: () {
-                  func.performCommand(context, printerInfo);
+                  func.performCommand( printerInfo);
                 },
                 child: Text(func.label),
               ),
@@ -84,40 +84,40 @@ extension ExFuncEnum on FuncEnum {
 
   ///执行对应的命令行
   void performCommand(
-    BuildContext context,
+    // BuildContext context,
     PrinterInfo printerInfo,
   ) {
-    switch (this) {
-      case FuncEnum.previewReceipt:
-        // 预览小票
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return ReceiptTempWidget(
-                printerInfo,
-                receiptWidth: 550,
-              );
-            },
-          ),
-        );
-        break;
-      case FuncEnum.previewLabel:
-        // 预览标签
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return LabelTempWidget(
-                printerInfo,
-                labelWidth: 360,
-                labelHeight: 560,
-              );
-            },
-          ),
-        );
-        break;
-      case FuncEnum.printReceipt:
+    // switch (this) {
+      // case FuncEnum.previewReceipt:
+      //   // 预览小票
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) {
+      //         return ReceiptTempWidget(
+      //           printerInfo,
+      //           receiptWidth: 550,
+      //         );
+      //       },
+      //     ),
+      //   );
+      //   break;
+      // case FuncEnum.previewLabel:
+      //   // 预览标签
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) {
+      //         return LabelTempWidget(
+      //           printerInfo,
+      //           labelWidth: 360,
+      //           labelHeight: 560,
+      //         );
+      //       },
+      //     ),
+      //   );
+      //   break;
+      // case FuncEnum.printReceipt:
         // 直接打印小票
         PictureGeneratorProvider.instance.addPicGeneratorTask(
           PicGenerateTask<PrinterInfo>(
@@ -129,21 +129,21 @@ extension ExFuncEnum on FuncEnum {
             params: printerInfo,
           ),
         );
-        break;
-      case FuncEnum.printLabel:
-        // 直接打印标签
-        PictureGeneratorProvider.instance.addPicGeneratorTask(
-          PicGenerateTask<PrinterInfo>(
-            tempWidget: const LabelConstrainedBox(
-              LabelStyleWidget(),
-              pageWidth: 360,
-              pageHeight: 560,
-            ),
-            printTypeEnum: PrintTypeEnum.label,
-            params: printerInfo,
-          ),
-        );
-        break;
-    }
+        // break;
+      // case FuncEnum.printLabel:
+      //   // 直接打印标签
+      //   PictureGeneratorProvider.instance.addPicGeneratorTask(
+      //     PicGenerateTask<PrinterInfo>(
+      //       tempWidget: const LabelConstrainedBox(
+      //         LabelStyleWidget(),
+      //         pageWidth: 360,
+      //         pageHeight: 560,
+      //       ),
+      //       printTypeEnum: PrintTypeEnum.label,
+      //       params: printerInfo,
+      //     ),
+      //   );
+      //   break;
+    // }
   }
 }

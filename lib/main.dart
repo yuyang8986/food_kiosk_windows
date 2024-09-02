@@ -86,6 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
   // FlutterBlue flutterBlue = FlutterBlue.instance;
   List _devices = [];
   String? _selectedDeviceId;
+  
+  var selectedPrinterInfo;
 
   // Future<void> _scanForPrinters() async {
   //   var devices = await _printerHelper.scanForPrinters();
@@ -114,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text("Settings"),
           content: PrintImageGenerateWidget(
             contentBuilder: (context) {
-              return Text("Hellllllllllllllllllllllllllllllllllo");
+              return Text("Scan USB printers");
             },
             onPictureGenerated: _onPictureGenerated, //下面说明
           ),
@@ -139,11 +141,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 // );
 
                 // doPrint();
-                 Navigator.of(context).push(
+                var printerInfo = await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const PrinterListPage(SearchType.usb),
                   ),
                 );
+
+                selectedPrinterInfo = printerInfo;
               },
             ),
           ],
@@ -207,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Dine In")));
+                              builder: (context) => Chooser(type: "Dine In", printerInfo: selectedPrinterInfo,)));
                         },
                       ),
                     ),
@@ -230,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) =>
-                                  Chooser(type: "Take Away")));
+                                  Chooser(type: "Take Away", printerInfo: selectedPrinterInfo,)));
                         },
                       ),
                     ),
