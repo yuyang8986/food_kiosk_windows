@@ -14,7 +14,7 @@ class CartBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical:5),
       decoration: BoxDecoration(
         color: Colors.orange,
         borderRadius: BorderRadius.only(
@@ -47,12 +47,12 @@ class CartBar extends StatelessWidget {
             ),
           ),
           Container(
-            height: 200,
+            height: 150, // This height will now be applied correctly
             child: ElevatedButton(
               onPressed: onViewCartPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
+                backgroundColor: isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
+                fixedSize: Size(200, 150), // Set both width and height
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -61,8 +61,7 @@ class CartBar extends StatelessWidget {
                 "VIEW CART",
                 style: TextStyle(color: Colors.black.withOpacity(.9), fontSize: 30),
               ),
-            ),
-          ),
+            ),)
         ],
       ),
     );
