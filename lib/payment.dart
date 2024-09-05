@@ -479,30 +479,29 @@ class _MyPaymentState extends State<Payment> {
                         ],
                       ),
                     ),
-                    onPressed: ()  {
+                    onPressed: () {
                       var helper = HttpClientHelper();
-
-                       helper.createOrder(order).then((value) => {
-                      // PrinterHelper.currentOrderToPrinter = order
-
-                      // 预览小票
-                      PictureGeneratorProvider.instance.addPicGeneratorTask(
-                        PicGenerateTask<PrinterInfo>(
-                          tempWidget: const ReceiptConstrainedBox(
-                            ReceiptStyleWidget(),
-                            pageWidth: 550,
+                      var orderNumber;
+                      helper.createOrder(order).then((value) {
+                        // PrinterHelper.currentOrderToPrinter = order
+                        orderNumber = value;
+                        // 预览小票
+                        PictureGeneratorProvider.instance.addPicGeneratorTask(
+                          PicGenerateTask<PrinterInfo>(
+                            tempWidget: const ReceiptConstrainedBox(
+                              ReceiptStyleWidget(),
+                              pageWidth: 550,
+                            ),
+                            printTypeEnum: PrintTypeEnum.receipt,
+                            params: widget.printerInfo,
                           ),
-                          printTypeEnum: PrintTypeEnum.receipt,
-                          params: widget.printerInfo,
-                        ),
-                       )
-                       });
-                      // var orderNumber = 
+                        );
+                      });
+
                       // var printHelper = PrinterHelper();
                       // await PrinterHelper.connect(PrinterHelper.printerIP);
                       // await printHelper.printReceipt(
                       //     PrinterHelper.printerIP, order.orderItems, order.orderPrice);
-                      
 
                       // Future.sync(() => {
                       //    PictureGeneratorProvider.instance.addPicGeneratorTask(
@@ -518,13 +517,13 @@ class _MyPaymentState extends State<Payment> {
                       // });
 
                       // PrinterHelper.performCommand();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) =>
-                      //         OrderConfirmation(orderNumber: orderNumber.toString()),
-                      //   ),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderConfirmation(
+                              orderNumber: orderNumber.toString()),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
