@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mcdo_ui/components/receipt_constraint_box.dart';
 import 'package:mcdo_ui/helpers/printerHelper.dart';
+import 'package:mcdo_ui/models/order.dart';
 import 'package:mcdo_ui/printer_info.dart';
 
 // ignore: depend_on_referenced_packages
@@ -314,8 +315,9 @@ import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 
 // 小票样式 demo， （用于生成图片 - 打印）
 class ReceiptStyleWidget extends StatefulWidget {
+  final Order order;
   const ReceiptStyleWidget({
-    Key? key,
+    Key? key, required this.order
   }) : super(key: key);
 
   @override
@@ -328,51 +330,107 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
     return _homeBody();
   }
 
-  Widget _homeBody() {
-    var order = PrinterHelper.currentOrderToPrinter;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '测试打印小票',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 34,
-            fontWeight: FontWeight.bold,
+ Widget _homeBody() {
+  var order = widget.order;
+
+  // Sample data (replace with actual data if available)
+  String orderType = 'Take Out';
+  String orderNumber = '00019269';
+  String server = 'Administrator';
+  String dateTime = '2024/7/26 7:58:28';
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Order Type, Order Number, Server Info
+      Text(
+        orderType,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 30,
+          fontWeight: FontWeight.bold,
+          // textAlign: TextAlign.center,
+        ),
+      ),
+      SizedBox(height: 5),
+      Text(
+        'Order #: $orderNumber',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 22,
+          // textAlign: TextAlign.center,
+        ),
+      ),
+      Text(
+        'Server: $server',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 22,
+          // textAlign: TextAlign.center,
+        ),
+      ),
+      Divider(thickness: 2),
+      
+      // Items and Addon Options
+      Text(
+        'Items:',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      SizedBox(height: 5),
+
+      // Display each item in the order with addons
+      ...order.orderItems.map((orderItem) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${orderItem.quantity} ${orderItem.item.itemName}', 
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          // Addon options for the item
+          ...orderItem.selectedItemAddonOptions.map((addonOption) => Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Text(
+              '  ${addonOption.optionName}',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+              ),
+            ),
+          )).toList(),
+        ],
+      )).toList(),
+
+      Divider(thickness: 2),
+
+      // Date and Time
+      Text(
+        'Date: $dateTime',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 22,
         ),
-        SizedBox(
-          height: 5,
+      ),
+      SizedBox(height: 10),
+
+      // Total Price
+      Text(
+        'Total Price: \$${order.orderPrice.toStringAsFixed(2)}',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
         ),
-        Text(
-          '测试打印1',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-          ),
-        ),
-        Text(
-          '测试打印2',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-          ),
-        ),
-        Text(
-          '测试打印3',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-          ),
-        ),
-        Text(
-          '123456',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

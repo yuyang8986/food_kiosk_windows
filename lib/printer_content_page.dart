@@ -118,17 +118,17 @@ extension ExFuncEnum on FuncEnum {
       //   );
       //   break;
       // case FuncEnum.printReceipt:
-        // 直接打印小票
-        PictureGeneratorProvider.instance.addPicGeneratorTask(
-          PicGenerateTask<PrinterInfo>(
-            tempWidget: const ReceiptConstrainedBox(
-              ReceiptStyleWidget(),
-              pageWidth: 550,
-            ),
-            printTypeEnum: PrintTypeEnum.receipt,
-            params: printerInfo,
-          ),
-        );
+        // // 直接打印小票
+        // PictureGeneratorProvider.instance.addPicGeneratorTask(
+        //   PicGenerateTask<PrinterInfo>(
+        //     tempWidget: const ReceiptConstrainedBox(
+        //       ReceiptStyleWidget(new),
+        //       pageWidth: 550,
+        //     ),
+        //     printTypeEnum: PrintTypeEnum.receipt,
+        //     params: printerInfo,
+        //   ),
+        // );
         // break;
       // case FuncEnum.printLabel:
       //   // 直接打印标签

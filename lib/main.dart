@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 // import 'package:flutter/rendering.dart';
@@ -7,17 +8,23 @@ import 'package:flutter_printer_plus/flutter_printer_plus.dart';
 // import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
 import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:mcdo_ui/printerConnectionpage.dart';
+import 'package:mcdo_ui/printer_info.dart';
 import 'package:print_image_generate_tool/print_image_generate_tool.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:window_manager/window_manager.dart';
 import 'chooser.dart';
-import 'package:flutter/services.dart';
 // import 'animationTest.dart';
+import 'package:android_usb_printer/android_usb_printer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(
+    RestartWidget(
+      child: MyApp(),
+    ),
+  );
   // Must add this line.
-  await windowManager.ensureInitialized();
+  // await windowManager.ensureInitialized();
 
   // Use it only after calling `hiddenWindowAtLaunch`
   // windowManager.waitUntilReadyToShow().then((_) async {
@@ -33,6 +40,37 @@ void main() async {
   // print("web printer" + supported.toString());
   // A stream that says if a bluetooth adapter is available to the browser.
   // final available = FlutterWebBluetooth.instance.isAvailable;
+}
+
+class RestartWidget extends StatefulWidget {
+  RestartWidget({required this.child});
+
+  final Widget child;
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_RestartWidgetState>()?.restartApp();
+  }
+
+  @override
+  _RestartWidgetState createState() => _RestartWidgetState();
+}
+
+class _RestartWidgetState extends State<RestartWidget> {
+  Key key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: key,
+      child: widget.child,
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -86,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // FlutterBlue flutterBlue = FlutterBlue.instance;
   List _devices = [];
   String? _selectedDeviceId;
-  
+
   var selectedPrinterInfo;
 
   // Future<void> _scanForPrinters() async {
@@ -114,12 +152,14 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Settings"),
-          content: PrintImageGenerateWidget(
-            contentBuilder: (context) {
-              return Text("Scan USB printers");
-            },
-            onPictureGenerated: _onPictureGenerated, //下面说明
-          ),
+           content:
+           // PrintImageGenerateWidget(
+          //   contentBuilder: (context) {
+          //     return 
+              Text("Scan USB printers")
+            // },
+            // onPictureGenerated: _onPictureGenerated, //下面说明
+          ,
           actions: <Widget>[
             TextButton(
               child: Text("Cancel"),
@@ -130,17 +170,6 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               child: Text("Scan"),
               onPressed: () async {
-                // print("Entered text: ${_controller.text}");
-                // PrinterHelper.setPrinterIP(_controller.text);
-                // Navigator.of(context).pop();
-
-                // PrinterHelper.getusbDeviceslist();
-                // var printData = await PrinterCommandTool.generatePrintCmd(
-                //   imgData: imageBytes,
-                //   printType: PrintTypeEnum.label,
-                // );
-
-                // doPrint();
                 var printerInfo = await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const PrinterListPage(SearchType.usb),
@@ -186,11 +215,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                // Image.asset(
-                //   'assets/logo.png',
-                //   height: 140.0,
-                //   fit: BoxFit.cover,
-                // ),
                 Row(
                   children: <Widget>[
                     Spacer(flex: 5),
@@ -209,9 +233,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 30, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Dine In", printerInfo: selectedPrinterInfo,)));
+                        onPressed: () async {
+                          // First, check if selectedPrinterInfo is null or empty
+                          if (selectedPrinterInfo == null) {
+                            // Try to fetch the printer info from local storage
+                            PrinterInfo? storedPrinterInfo =
+                                await getPrinterInfoFromStorage();
+
+                            if (storedPrinterInfo != null) {
+                              // If found in local storage, assign it to selectedPrinterInfo
+                              selectedPrinterInfo = storedPrinterInfo;
+                            }
+                          }
+
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Chooser(
+                                    type: "Dine In",
+                                    printerInfo: selectedPrinterInfo,
+                                  )));
                         },
                       ),
                     ),
@@ -233,8 +272,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  Chooser(type: "Take Away", printerInfo: selectedPrinterInfo,)));
+                              builder: (context) => Chooser(
+                                    type: "Take Away",
+                                    printerInfo: selectedPrinterInfo,
+                                  )));
                         },
                       ),
                     ),
@@ -258,158 +299,48 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  ///例如：将 ReceiptStyleWidget 转打印图层
-  void doPrint(printerInfo) {
-    // 生成打印图层任务，指定任务类型为小票
-    PictureGeneratorProvider.instance.addPicGeneratorTask(
-      PicGenerateTask(
-        tempWidget: ReceiptTemp('小票内容') as ATempWidget,
-        printTypeEnum: PrintTypeEnum.receipt,
-        params: printerInfo,
-      ),
-    );
+//Function to save PrinterInfo object to local storage
+  Future<void> savePrinterInfoToStorage(PrinterInfo printerInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Prepare data to store in SharedPreferences
+    Map<String, dynamic> printerInfoMap = {
+      'ip': printerInfo.ip,
+      'usbDevice': printerInfo.usbDevice != null
+          ? {
+              'productName': printerInfo.usbDevice!.productName,
+              'vId': printerInfo.usbDevice!.vId,
+              'pId': printerInfo.usbDevice!.pId,
+              'sId': printerInfo.usbDevice!.sId,
+            }
+          : null,
+    };
+
+    // Convert the map to a JSON string and store it
+    String printerInfoJson = jsonEncode(printerInfoMap);
+    await prefs.setString('selectedPrinterInfo', printerInfoJson);
   }
 
-// //打印图层生成成功
-//   Future<void> _onPictureGenerated(PicGenerateResult data) async {
-//     //widget生成的图像结果
-//     final imageBytes = data.image;
-//     //打印任务信息
-//     final printTask = data.taskItem;
-//     //打印票据类型（标签、小票）
-//     final printTypeEnum = printTask.printTypeEnum;
-//     final dataByte = await imageBytes!.toByteData();
-//     // 转 TSC 字节，imageBytes 类型为 Uint8List
-//     var printData = await PrinterCommandTool.generatePrintCmd(
-//       imgData: dataByte as Uint8List,
-//       printType: PrintTypeEnum.label,
-//     );
-//   }
-// }
+// Function to get PrinterInfo object from local storage
+  Future<PrinterInfo?> getPrinterInfoFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? printerInfoJson = prefs.getString('selectedPrinterInfo');
 
-//打印图层生成成功
-  Future<void> _onPictureGenerated(PicGenerateResult data) async {
-    final printTask = data.taskItem;
+    if (printerInfoJson != null && printerInfoJson.isNotEmpty) {
+      Map<String, dynamic> printerInfoMap = jsonDecode(printerInfoJson);
 
-    //指定的打印机
-    final printerInfo = printTask.params;
-    //打印票据类型（标签、小票）
-    final printTypeEnum = printTask.printTypeEnum;
-
-    final imageBytes =
-        await data.convertUint8List(imageByteFormat: ImageByteFormat.rawRgba);
-    //也可以使用 ImageByteFormat.png
-    final argbWidth = data.imageWidth;
-    final argbHeight = data.imageHeight;
-    if (imageBytes == null) {
-      return;
+      // Recreate PrinterInfo object
+      if (printerInfoMap['ip'] != null) {
+        return PrinterInfo.fromIp(printerInfoMap['ip']);
+      } else if (printerInfoMap['usbDevice'] != null) {
+        return PrinterInfo.fromUsbDevice(UsbDeviceInfo(
+          productName: printerInfoMap['usbDevice']['productName'],
+          vId: printerInfoMap['usbDevice']['vId'],
+          pId: printerInfoMap['usbDevice']['pId'],
+          sId: printerInfoMap['usbDevice']['sId'],
+        ));
+      }
     }
-    //只要 imageBytes 不是使用 ImageByteFormat.rawRgba 格式转换的 unit8List
-    //argbWidthPx、argbHeightPx 不要传值，默认为空就行
-    var printData = await PrinterCommandTool.generatePrintCmd(
-      imgData: imageBytes,
-      printType: printTypeEnum,
-      argbWidthPx: argbWidth,
-      argbHeightPx: argbHeight,
-    );
-    if (printerInfo.isUsbPrinter) {
-      // usb 打印
-      final conn = UsbConn(printerInfo.usbDevice!);
-      conn.writeMultiBytes(printData, 1024 * 3);
-    } else if (printerInfo.isNetPrinter) {
-      // 网络 打印
-      final conn = NetConn(printerInfo.ip!);
-      conn.writeMultiBytes(printData);
-    }
+    return null;
   }
-
-//   void doPrint() {
-//   // 生成打印图层任务，指定任务类型为小票
-//   PictureGeneratorProvider.instance.addPicGeneratorTask(
-//     PicGenerateTask(
-//       tempWidget: ReceiptConstrainedBox(ReceiptStyleWidget()) as ATempWidget, //ReceiptConstrainedBox 封装了小票宽高的限制条件
-//       printTypeEnum: PrintTypeEnum.receipt,
-//       params: printerInfo, //params是一个透传值，可以是任意类型，example中 params 携带的是打印机数据，在 _onPictureGenerated 中跟随生成的打印图层可被获取到
-//     ),
-//   );
-// }
-}
-
-// ///生成打印的模板 Widget 需要继承这个类
-// mixin ATempWidget {
-//   //生成图片的缩放倍数
-//   double get pixelRatio => 1;
-
-//   //需要生成的票据像素宽度
-//   int get pixelPagerWidth;
-
-//   //需要生成的票据像素高度
-//   int get pixelPagerHeight => -1;
-// }
-
-///例如：将 ReceiptStyleWidget 转打印图层
-
-// 使用widget编写需要的小票样式，以下是样例
-class ReceiptStyleWidget extends StatefulWidget {
-  const ReceiptStyleWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _TempReceiptWidgetState();
-}
-
-class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return _homeBody();
-  }
-
-  Widget _homeBody() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '测试打印小票',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 34,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ///生成打印的模板 Widget 需要继承这个类
-// mixin ATempWidget {
-//   //生成图片的缩放倍数
-//   double get pixelRatio => 1;
-
-//   //需要生成的票据像素宽度
-//   int get pixelPagerWidth;
-
-//   //需要生成的票据像素高度
-//   int get pixelPagerHeight => -1;
-// }
-
-// 小票样式 demo
-class ReceiptTemp extends StatelessWidget with ATempWidget {
-  final String data;
-
-  const ReceiptTemp(this.data, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Text(data),
-    );
-  }
-
-  @override
-  int get pixelPagerWidth => 550;
-
-  // 小票不限制高度，pixelPagerHeight = -1 就行，无需重写
 }

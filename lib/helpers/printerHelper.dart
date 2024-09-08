@@ -41,20 +41,20 @@ class PrinterHelper {
     print(" length: ${results.length}");
   }
 
- performCommand(
-  ) {
-    // 预览小票
-    PictureGeneratorProvider.instance.addPicGeneratorTask(
-          PicGenerateTask<PrinterInfo>(
-            tempWidget: const ReceiptConstrainedBox(
-              ReceiptStyleWidget(),
-              pageWidth: 550,
-            ),
-            printTypeEnum: PrintTypeEnum.receipt,
-            params: usbPrinter,
-          ),
-        );
-  }
+//  performCommand(
+//   ) {
+//     // 预览小票
+//     PictureGeneratorProvider.instance.addPicGeneratorTask(
+//           PicGenerateTask<PrinterInfo>(
+//             tempWidget: const ReceiptConstrainedBox(
+//               ReceiptStyleWidget(),
+//               pageWidth: 550,
+//             ),
+//             printTypeEnum: PrintTypeEnum.receipt,
+//             params: usbPrinter,
+//           ),
+//         );
+//   }
 
   // static FlutterUsbPrinter flutterUsbPrinter = FlutterUsbPrinter();
   // Future<bool> connectUSB(int vendorId, int productId) async {

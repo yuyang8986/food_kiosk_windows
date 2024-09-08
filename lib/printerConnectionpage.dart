@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,7 @@ import 'package:mcdo_ui/helpers/printerHelper.dart';
 import 'package:mcdo_ui/loading.dart';
 import 'package:mcdo_ui/printer_content_page.dart';
 import 'package:mcdo_ui/printer_info.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrinterListPage extends StatefulWidget {
   final SearchType searchType;
@@ -96,19 +96,42 @@ class _PrinterItemWidget extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  Future<void> savePrinterInfoToStorage(PrinterInfo printerInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Prepare data to store in SharedPreferences
+    Map<String, dynamic> printerInfoMap = {
+      'ip': printerInfo.ip,
+      'usbDevice': printerInfo.usbDevice != null
+          ? {
+              'productName': printerInfo.usbDevice!.productName,
+              'vId': printerInfo.usbDevice!.vId,
+              'pId': printerInfo.usbDevice!.pId,
+              'sId': printerInfo.usbDevice!.sId,
+            }
+          : null,
+    };
+
+    // Convert the map to a JSON string and store it
+    String printerInfoJson = jsonEncode(printerInfoMap);
+    await prefs.setString('selectedPrinterInfo', printerInfoJson);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(child: Text(printerInfo.name)),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
+            await savePrinterInfoToStorage(printerInfo);
             // PrinterHelper.usbPrinter = printerInfo;
             // Navigator.of(context).push(
             //   MaterialPageRoute(
             //     builder: (context) => PrinterContentWidget(printerInfo),
             //   ),
             // );
+
             Navigator.pop(context, printerInfo);
           },
           child: const Text('点击使用'),

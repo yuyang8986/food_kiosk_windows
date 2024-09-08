@@ -267,11 +267,11 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
               }
             },
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 15),
-              textStyle: TextStyle(fontSize: 24),
-              backgroundColor: Colors.purple,
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              textStyle: TextStyle(fontSize: 24, color: Colors.white),
+              backgroundColor: Color.fromARGB(255, 26, 124, 13),
             ),
-            child: Text('Confirm Order'),
+            child: Text('Confirm Order',  style: TextStyle(fontSize: 25, color: Colors.white),),
           ),
           SizedBox(height: 20),
         ],

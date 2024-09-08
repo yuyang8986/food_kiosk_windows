@@ -49,10 +49,11 @@ class OrderConfirmation extends StatelessWidget {
           Spacer(),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MyHomePage()),
-              );
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => MyHomePage()),
+              // );
+              RestartWidget.restartApp(context);
             },
             child: Text("Close",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),

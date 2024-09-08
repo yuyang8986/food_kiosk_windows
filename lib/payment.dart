@@ -474,10 +474,18 @@ class _MyPaymentState extends State<Payment> {
                             fit: BoxFit.fitWidth,
                             child: Text("Place Order",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 30)),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 30,
+                                    color: Colors.white)),
                           )
                         ],
                       ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                      textStyle: TextStyle(fontSize: 24, color: Colors.white),
+                      backgroundColor: Color.fromARGB(255, 16, 42, 90),
                     ),
                     onPressed: () {
                       var helper = HttpClientHelper();
@@ -488,12 +496,22 @@ class _MyPaymentState extends State<Payment> {
                         // 预览小票
                         PictureGeneratorProvider.instance.addPicGeneratorTask(
                           PicGenerateTask<PrinterInfo>(
-                            tempWidget: const ReceiptConstrainedBox(
-                              ReceiptStyleWidget(),
+                            tempWidget: ReceiptConstrainedBox(
+                              ReceiptStyleWidget(
+                                order: order,
+                              ),
                               pageWidth: 550,
                             ),
                             printTypeEnum: PrintTypeEnum.receipt,
                             params: widget.printerInfo,
+                          ),
+                        );
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderConfirmation(
+                                orderNumber: orderNumber.toString()),
                           ),
                         );
                       });
@@ -517,19 +535,12 @@ class _MyPaymentState extends State<Payment> {
                       // });
 
                       // PrinterHelper.performCommand();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderConfirmation(
-                              orderNumber: orderNumber.toString()),
-                        ),
-                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      textStyle: TextStyle(fontSize: 24),
-                      backgroundColor: Colors.purple,
-                    ),
+                    // style: ElevatedButton.styleFrom(
+                    //   padding: EdgeInsets.symmetric(vertical: 15),
+                    //   textStyle: TextStyle(fontSize: 24),
+                    //   backgroundColor: Colors.purple,
+                    // ),
                   ),
                 ),
               ),
