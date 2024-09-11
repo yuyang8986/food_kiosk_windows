@@ -150,6 +150,7 @@ class _MyPaymentState extends State<Payment> {
                             tempWidget: ReceiptConstrainedBox(
                               ReceiptStyleWidget(
                                 order: order,
+                                orderNumber: orderNumber.toString(),
                               ),
                               pageWidth: 550,
                             ),

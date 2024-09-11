@@ -112,10 +112,35 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           ),
           ElevatedButton(
             onPressed: () async {
+              if (widget.order.orderItems.isEmpty ||
+                  widget.order.orderItems.length == 0) {
+                // Show alert dialog if no items are in the order
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Alert'),
+                      content: Text(
+                          'At least one item is needed to place an order.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                return; // Stop further execution
+              }
+
+              // Continue to navigation if there are order items
               Navigation.initPaths(
                 widget.order,
                 widget.type,
-                widget.printerInfo
+                widget.printerInfo,
               ); // Ensure this method is updated to handle OrderItem
 
               final result = await Navigation.router.navigateTo(
@@ -133,7 +158,10 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
               textStyle: TextStyle(fontSize: 24, color: Colors.white),
               backgroundColor: Color.fromARGB(255, 26, 124, 13),
             ),
-            child: Text('Confirm Order',  style: TextStyle(fontSize: 25, color: Colors.white),),
+            child: Text(
+              'Confirm Order',
+              style: TextStyle(fontSize: 25, color: Colors.white),
+            ),
           ),
           SizedBox(height: 20),
         ],

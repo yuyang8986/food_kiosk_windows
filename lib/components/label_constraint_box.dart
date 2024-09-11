@@ -316,8 +316,9 @@ import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 // 小票样式 demo， （用于生成图片 - 打印）
 class ReceiptStyleWidget extends StatefulWidget {
   final Order order;
+  final String orderNumber;
   const ReceiptStyleWidget({
-    Key? key, required this.order
+    Key? key, required this.order, required this.orderNumber
   }) : super(key: key);
 
   @override
@@ -334,10 +335,10 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
   var order = widget.order;
 
   // Sample data (replace with actual data if available)
-  String orderType = 'Take Out';
-  String orderNumber = '00019269';
+  String orderType = order.orderType;
   String server = 'Administrator';
-  String dateTime = '2024/7/26 7:58:28';
+  String orderNumber = widget.orderNumber;
+  String dateTime = DateTime.now().toLocal().toIso8601String();
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +348,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         orderType,
         style: TextStyle(
           color: Colors.black,
-          fontSize: 30,
+          fontSize: 40,
           fontWeight: FontWeight.bold,
           // textAlign: TextAlign.center,
         ),
@@ -357,7 +358,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         'Order #: $orderNumber',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 22,
+          fontSize: 35,
           // textAlign: TextAlign.center,
         ),
       ),
@@ -365,7 +366,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         'Server: $server',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 22,
+          fontSize: 35,
           // textAlign: TextAlign.center,
         ),
       ),
@@ -376,7 +377,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         'Items:',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 24,
+          fontSize: 35,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -390,7 +391,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
             '${orderItem.quantity} ${orderItem.item.itemName}', 
             style: TextStyle(
               color: Colors.black,
-              fontSize: 22,
+              fontSize: 35,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -401,7 +402,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
               '  ${addonOption.optionName}',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 35,
               ),
             ),
           )).toList(),
@@ -415,7 +416,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         'Date: $dateTime',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 22,
+          fontSize: 35,
         ),
       ),
       SizedBox(height: 10),
@@ -425,7 +426,7 @@ class _TempReceiptWidgetState extends State<ReceiptStyleWidget> {
         'Total Price: \$${order.orderPrice.toStringAsFixed(2)}',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 24,
+          fontSize: 38,
           fontWeight: FontWeight.bold,
         ),
       ),
