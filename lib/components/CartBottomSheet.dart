@@ -34,11 +34,18 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
   }
 
   void _decrementQuantity(int index) {
-    if (widget.order.orderItems[index].quantity > 1) {
+    if (widget.order.orderItems[index].quantity >= 1) {
       setState(() {
         widget.order.orderItems[index].quantity--;
       });
     }
+  }
+
+  double getTotalPrice(List<OrderItem> items) {
+    return items.fold(
+      0.0,
+      (sum, orderItem) => sum + orderItem.getTotalPrice(),
+    );
   }
 
   Future<void> saveOrder() async {
@@ -113,7 +120,8 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           ElevatedButton(
             onPressed: () async {
               if (widget.order.orderItems.isEmpty ||
-                  widget.order.orderItems.length == 0) {
+                  widget.order.orderItems.length == 0 ||
+                  getTotalPrice(widget.order.orderItems) == 0) {
                 // Show alert dialog if no items are in the order
                 showDialog(
                   context: context,

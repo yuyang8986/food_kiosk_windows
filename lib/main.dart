@@ -270,10 +270,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 30, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
+                        onPressed: ()async {
+                         // First, check if selectedPrinterInfo is null or empty
+                          if (selectedPrinterInfo == null) {
+                            // Try to fetch the printer info from local storage
+                            PrinterInfo? storedPrinterInfo =
+                                await getPrinterInfoFromStorage();
+
+                            if (storedPrinterInfo != null) {
+                              // If found in local storage, assign it to selectedPrinterInfo
+                              selectedPrinterInfo = storedPrinterInfo;
+                            }
+                          }
+
+                          await Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => Chooser(
-                                    type: "Take Away",
+                                    type: "Dine In",
                                     printerInfo: selectedPrinterInfo,
                                   )));
                         },

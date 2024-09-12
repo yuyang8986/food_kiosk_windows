@@ -14,8 +14,10 @@ class Payment extends StatefulWidget {
   final Order order;
   final String type; // Eat in or Take out
   final PrinterInfo printerInfo;
-
-  Payment({required this.printerInfo, required this.order, required this.type});
+  // final Function onOrderItemsChanged;
+  Payment({required this.printerInfo, required this.order, required this.type
+      // required this.onOrderItemsChanged
+      });
 
   @override
   _MyPaymentState createState() => _MyPaymentState();
@@ -255,6 +257,8 @@ class _MyPaymentState extends State<Payment> {
                   if (order.orderItems[position].quantity <= 0) {
                     order.orderItems.removeAt(position);
                   }
+                  reCalculateOrderPrice();
+                  // widget.onOrderItemsChanged(order.orderItems);
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -274,6 +278,9 @@ class _MyPaymentState extends State<Payment> {
               onPressed: () {
                 setState(() {
                   order.orderItems[position].add();
+                  reCalculateOrderPrice();
+
+                  // widget.onOrderItemsChanged(order.orderItems);
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -286,5 +293,12 @@ class _MyPaymentState extends State<Payment> {
         SizedBox(width: 10)
       ],
     );
+  }
+
+  void reCalculateOrderPrice() {
+    // setState(() {
+      order.orderPrice =
+          order.orderItems.fold(0, (sum, item) => sum + item.getTotalPrice());
+    // });
   }
 }

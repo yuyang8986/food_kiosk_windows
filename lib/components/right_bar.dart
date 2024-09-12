@@ -25,20 +25,20 @@ class RightBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // Green Top Bar with Order Type
-        Container(
-          height: 60.0,
-          color: Colors.green,
-          child: Center(
-            child: Text(
-              'Order Type: ${order.orderType}',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
+        // Container(
+        //   height: 60.0,
+        //   color: Colors.green,
+        //   child: Center(
+        //     child: Text(
+        //       'Order Type: ${order.orderType}',
+        //       style: TextStyle(
+        //         color: Colors.white,
+        //         fontSize: 20,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //     ),
+        //   ),
+        // ),
         Expanded(
           flex: 6,
           child: GridView.builder(
