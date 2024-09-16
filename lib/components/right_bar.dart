@@ -40,13 +40,13 @@ class RightBar extends StatelessWidget {
         //   ),
         // ),
         Expanded(
-          flex: 6,
+          flex: 9,
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 1.0,
               crossAxisSpacing: 1.0,
-              childAspectRatio: 2,
+              childAspectRatio: 1.15,
             ),
             itemCount: filteredItems.length,
             itemBuilder: (context, position) {
@@ -74,67 +74,70 @@ class RightBar extends StatelessWidget {
   }
 
   Widget listItem(int position) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.all(
-                  2.0), // Add some padding to prevent overflow
-              child: Image.memory(
-                filteredItems[position].itemImage as Uint8List,
-                fit: BoxFit.contain,
+    return Container(
+      height: 300,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.all(
+                    2.0), // Add some padding to prevent overflow
+                child: Image.memory(
+                  filteredItems[position].itemImage as Uint8List,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10), // Reduced height to avoid overflow
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(
-                    filteredItems[position].itemName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      overflow: TextOverflow
-                          .ellipsis, // Add ellipsis to handle overflow
+            SizedBox(height: 10), // Reduced height to avoid overflow
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(
+                      filteredItems[position].itemName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        overflow: TextOverflow
+                            .ellipsis, // Add ellipsis to handle overflow
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 5), // Reduced height to avoid overflow
-              ElevatedButton(
-                onPressed: () {
-                  onAddToCartPressed(position);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(255, 199, 0, 1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
+                SizedBox(height: 10), // Reduced height to avoid overflow
+                ElevatedButton(
+                  onPressed: () {
+                    onAddToCartPressed(position);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(255, 199, 0, 1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Add',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          )
-        ,SizedBox(height: 5), 
-        ],
+              ],
+            )
+          ,SizedBox(height: 5), 
+          ],
+        ),
       ),
     );
   }
