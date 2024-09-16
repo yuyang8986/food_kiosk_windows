@@ -1,5 +1,3 @@
-// import 'dart:ui' as dui;
-
 import 'dart:ui';
 import 'package:flutter/src/widgets/image.dart' as fui;
 import 'package:fluro/fluro.dart';
@@ -22,15 +20,14 @@ class Navigation {
   static final router = FluroRouter();
   static bool _routesDefined = false;
   static Order? currentOrder; // Track the current order
-  static String? orderType; 
+  static String? orderType;
 
   static void initPaths(order, type, printerInfo) {
-  if (currentOrder != order) {
-    _routesDefined = false;
-    currentOrder = order; // Update current order
-  }
+    if (currentOrder != order) {
+      _routesDefined = false;
+      currentOrder = order; // Update current order
+    }
 
-  // if (!_routesDefined) {
     var chooserHandler = Handler(
       handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
         return Chooser(
@@ -54,7 +51,6 @@ class Navigation {
     orderType = type;
 
     try {
-      // Try defining the routes, catch exceptions for already-defined routes
       router.define("/", handler: chooserHandler);
     } catch (e) {
       print("Route '/' is already defined: $e");
@@ -67,9 +63,7 @@ class Navigation {
     }
 
     _routesDefined = true;
-  // }
-}
-
+  }
 }
 
 class Chooser extends StatefulWidget {
@@ -150,10 +144,8 @@ class _MyChooserState extends State<Chooser> {
             );
 
             if (existingIndex >= 0) {
-              // Update the existing item in the cart
               order.orderItems[existingIndex].quantity += orderItem.quantity;
             } else {
-              // Add the new item to the cart
               order.orderItems.add(orderItem);
             }
 
@@ -166,22 +158,16 @@ class _MyChooserState extends State<Chooser> {
 
   Future<void> _onPictureGenerated(PicGenerateResult data) async {
     final printTask = data.taskItem;
-
-    //指定的打印机
     final printerInfo = printTask.params;
-    //打印票据类型（标签、小票）
     final printTypeEnum = printTask.printTypeEnum;
 
     final imageBytes =
         await data.convertUint8List(imageByteFormat: ImageByteFormat.rawRgba);
-    //也可以使用 ImageByteFormat.png
     final argbWidth = data.imageWidth;
     final argbHeight = data.imageHeight;
     if (imageBytes == null) {
       return;
     }
-    //只要 imageBytes 不是使用 ImageByteFormat.rawRgba 格式转换的 unit8List
-    //argbWidthPx、argbHeightPx 不要传值，默认为空就行
     var printData = await PrinterCommandTool.generatePrintCmd(
       imgData: imageBytes,
       printType: printTypeEnum,
@@ -189,11 +175,9 @@ class _MyChooserState extends State<Chooser> {
       argbHeightPx: argbHeight,
     );
     if (printerInfo.isUsbPrinter) {
-      // usb 打印
       final conn = UsbConn(printerInfo.usbDevice!);
       conn.writeMultiBytes(printData, 1024 * 3);
     } else if (printerInfo.isNetPrinter) {
-      // 网络 打印
       final conn = NetConn(printerInfo.ip!);
       conn.writeMultiBytes(printData);
     }
@@ -205,7 +189,7 @@ class _MyChooserState extends State<Chooser> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 0.0), // Add 100px top padding
+            padding: const EdgeInsets.only(top: 0.0),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -244,11 +228,18 @@ class _MyChooserState extends State<Chooser> {
           Positioned(
             top: 1.0,
             child: Container(
-              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              padding: EdgeInsets.symmetric(horizontal: 15.0),
               width: MediaQuery.of(context).size.width,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context); // Go back to the previous page
+                    },
+                  ),
+                  SizedBox(width: 10.0), // Gap between Back button and Logo
                   fui.Image.asset(
                     'assets/logo.png',
                     height: 100.0,
@@ -266,7 +257,7 @@ class _MyChooserState extends State<Chooser> {
       contentBuilder: (context) {
         return scaffold;
       },
-      onPictureGenerated: _onPictureGenerated, //下面说明
+      onPictureGenerated: _onPictureGenerated,
     );
   }
 

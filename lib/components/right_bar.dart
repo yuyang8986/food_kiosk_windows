@@ -83,7 +83,8 @@ class RightBar extends StatelessWidget {
         children: <Widget>[
           Flexible(
             child: Container(
-              padding: const EdgeInsets.all(8.0), // Add some padding to prevent overflow
+              padding: const EdgeInsets.all(
+                  2.0), // Add some padding to prevent overflow
               child: Image.memory(
                 filteredItems[position].itemImage as Uint8List,
                 fit: BoxFit.contain,
@@ -91,43 +92,50 @@ class RightBar extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10), // Reduced height to avoid overflow
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: FittedBox(
-              fit: BoxFit.fitWidth,
-              child: Text(
-                filteredItems[position].itemName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  overflow: TextOverflow.ellipsis, // Add ellipsis to handle overflow
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    filteredItems[position].itemName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      overflow: TextOverflow
+                          .ellipsis, // Add ellipsis to handle overflow
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(height: 10), // Reduced height to avoid overflow
-          ElevatedButton(
-            onPressed: () {
-              onAddToCartPressed(position);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(255, 199, 0, 1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+              SizedBox(height: 5), // Reduced height to avoid overflow
+              ElevatedButton(
+                onPressed: () {
+                  onAddToCartPressed(position);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(255, 199, 0, 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                child: const Text(
+                  'Add',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-            child: const Text(
-              'Add',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+            ],
+          )
+        ,SizedBox(height: 5), 
         ],
       ),
     );
   }
-
 }

@@ -15,16 +15,16 @@ class LeftBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.only(top: 80, left: 10, right: 10, bottom: 10), // Adjust top padding here
+      padding: const EdgeInsets.only(top: 80, left: 0, right: 10, bottom: 10), // Adjust top padding here
       itemCount: categories.length,
       itemBuilder: (context, index) {
         return SizedBox(
-          width: 250,
+          width: 390,
           child: Container(
-            margin: const EdgeInsets.only(top: 20),
+            margin: const EdgeInsets.only(top: 30),
             child: Center(
               child: SizedBox(
-                height: 100,
+                height: 130,
                 child: ElevatedButton(
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -35,26 +35,26 @@ class LeftBar extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all(Colors.white),
                   ),
                   child: Container(
-                    constraints: const BoxConstraints(minWidth: 170),
+                    constraints: const BoxConstraints(minWidth: 200),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Container(
-                          constraints: const BoxConstraints(maxWidth: 50, maxHeight: 50),
+                          constraints: const BoxConstraints(maxWidth: 95, maxHeight: 95),
                           child: Image.memory(
                             categories[index].categoryImage as Uint8List,
                             fit: BoxFit.contain,
                           ),
                         ),
                         const SizedBox(
-                          width: 20,
+                          width: 5,
                         ),
                         Flexible(
                           child: Text(
                             categories[index].itemCategoryName,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),

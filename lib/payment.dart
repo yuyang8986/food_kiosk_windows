@@ -141,55 +141,65 @@ class _MyPaymentState extends State<Payment> {
                       backgroundColor: Color.fromARGB(255, 16, 42, 90),
                     ),
                     onPressed: () {
-                      var helper = HttpClientHelper();
-                      var orderNumber;
-                      helper.createOrder(order).then((value) {
-                        // PrinterHelper.currentOrderToPrinter = order
-                        orderNumber = value;
-                        // 预览小票
-                        PictureGeneratorProvider.instance.addPicGeneratorTask(
-                          PicGenerateTask<PrinterInfo>(
-                            tempWidget: ReceiptConstrainedBox(
-                              ReceiptStyleWidget(
-                                order: order,
-                                orderNumber: orderNumber.toString(),
+                      // Check if any item has a quantity of 0
+                      bool hasZeroQuantity = order.orderItems.isEmpty ||
+                          order.orderItems.any((item) => item.quantity == 0);
+
+                      if (hasZeroQuantity) {
+                        // Show alert dialog if any item has a quantity of 0
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Invalid Order'),
+                              content: Text(
+                                  'There are items in the order with zero quantity. Please adjust the quantity or remove them before placing the order.'),
+                              actions: [
+                                TextButton(
+                                  child: Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        // If no item has a quantity of 0, proceed with placing the order
+                        var helper = HttpClientHelper();
+                        var orderNumber;
+                        helper.createOrder(order).then((value) {
+                          orderNumber = value;
+
+                          // Generate receipt for preview
+                          PictureGeneratorProvider.instance.addPicGeneratorTask(
+                            PicGenerateTask<PrinterInfo>(
+                              tempWidget: ReceiptConstrainedBox(
+                                ReceiptStyleWidget(
+                                  order: order,
+                                  orderNumber: orderNumber.toString(),
+                                ),
+                                pageWidth: 550,
                               ),
-                              pageWidth: 550,
+                              printTypeEnum: PrintTypeEnum.receipt,
+                              params: widget.printerInfo,
                             ),
-                            printTypeEnum: PrintTypeEnum.receipt,
-                            params: widget.printerInfo,
-                          ),
-                        );
+                          );
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OrderConfirmation(
-                                orderNumber: orderNumber.toString()),
-                          ),
-                        );
-                      });
-
-                      // var printHelper = PrinterHelper();
-                      // await PrinterHelper.connect(PrinterHelper.printerIP);
-                      // await printHelper.printReceipt(
-                      //     PrinterHelper.printerIP, order.orderItems, order.orderPrice);
-
-                      // Future.sync(() => {
-                      //    PictureGeneratorProvider.instance.addPicGeneratorTask(
-                      //   PicGenerateTask<PrinterInfo>(
-                      //     tempWidget: const ReceiptConstrainedBox(
-                      //       ReceiptStyleWidget(),
-                      //       pageWidth: 550,
-                      //     ),
-                      //     printTypeEnum: PrintTypeEnum.receipt,
-                      //     params: PrinterHelper.usbPrinter,
-                      //   ),
-                      // )
-                      // });
-
-                      // PrinterHelper.performCommand();
+                          // Navigate to OrderConfirmation screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderConfirmation(
+                                  orderNumber: orderNumber.toString()),
+                            ),
+                          );
+                        });
+                      }
                     },
+
                     // style: ElevatedButton.styleFrom(
                     //   padding: EdgeInsets.symmetric(vertical: 15),
                     //   textStyle: TextStyle(fontSize: 24),
@@ -297,8 +307,8 @@ class _MyPaymentState extends State<Payment> {
 
   void reCalculateOrderPrice() {
     // setState(() {
-      order.orderPrice =
-          order.orderItems.fold(0, (sum, item) => sum + item.getTotalPrice());
+    order.orderPrice =
+        order.orderItems.fold(0, (sum, item) => sum + item.getTotalPrice());
     // });
   }
 }

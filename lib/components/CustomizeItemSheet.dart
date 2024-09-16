@@ -25,12 +25,11 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // Define a placeholder for when no matching item is found
     ItemAddonOption placeholderItemAddonOption = ItemAddonOption(
       optionId: -1, // Use an ID that does not conflict with actual addon IDs
       optionName: 'Select Option', // Default label
       optionDescription: 'No description',
-      price: 0.0, // Set default price to 0
+      price: 0.0,
       itemAddonId: -1,
     );
 
@@ -82,31 +81,40 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
                     );
                   }
 
-                  // Find the selected option
-                  ItemAddonOption? selectedOption = widget.orderItem.selectedItemAddonOptions.firstWhere(
+                  List<ItemAddonOption> addonOptionsWithPlaceholder = [
+                    ItemAddonOption.placeholder,
+                    ...ia.itemAddonOptions,
+                  ];
+
+                  ItemAddonOption? selectedOption =
+                      widget.orderItem.selectedItemAddonOptions.firstWhere(
                     (ItemAddonOption iao) => iao.itemAddonId == ia.itemAddonId,
-                    orElse: () => ia.itemAddonOptions.first, // Default to the first option in the list
+                    orElse: () => addonOptionsWithPlaceholder.first,
                   );
 
                   return ListTile(
                     title: Text(ia.itemAddonName),
                     trailing: DropdownButton<ItemAddonOption>(
                       value: selectedOption,
-                      items: ia.itemAddonOptions.map((ItemAddonOption iao) {
+                      items: addonOptionsWithPlaceholder
+                          .map((ItemAddonOption iao) {
                         return DropdownMenuItem<ItemAddonOption>(
-                          value: iao, // Ensure this value is unique
+                          value: iao,
                           child: Text(iao.optionName),
                         );
                       }).toList(),
                       onChanged: (ItemAddonOption? newValue) {
-                        if (newValue != null) {
+                        if (newValue != null &&
+                            newValue.optionName != 'Please choose') {
                           setState(() {
-                            // Remove the old selected option for this addon
                             widget.orderItem.selectedItemAddonOptions
-                                .removeWhere((ItemAddonOption iao) => iao.itemAddonId == ia.itemAddonId);
-                            
-                            // Add the new selected option
-                            widget.orderItem.selectedItemAddonOptions.add(newValue);
+                                .removeWhere(
+                              (ItemAddonOption iao) =>
+                                  iao.itemAddonId == ia.itemAddonId,
+                            );
+
+                            widget.orderItem.selectedItemAddonOptions
+                                .add(newValue);
                           });
                         }
                       },
@@ -118,15 +126,38 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
           TotalBar(
             totalPrice: widget.orderItem.getTotalPrice(),
             onAddToCart: (OrderItem orderItem) {
-            // Debugging print statement to check selected options
-            print('Selected options for ${orderItem.item.itemName}: ${orderItem.selectedItemAddonOptions}');
-            
-            widget.onAddToCart(orderItem);  // This should pass the correct options and quantities
-            Navigator.pop(context);  // Close the sheet
-          },
+              // Check if any selected option is the placeholder
+              bool hasPlaceholder = orderItem.selectedItemAddonOptions.isEmpty || orderItem.selectedItemAddonOptions.any(
+                (ItemAddonOption option) => option.isPlaceholder(),
+              );
+
+              if (hasPlaceholder) {
+                // Show alert dialog if any option is still the placeholder
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Incomplete Selection"),
+                      content: Text("Please select an option for all add-ons."),
+                      actions: [
+                        TextButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                // If everything is valid, proceed to add to cart
+                widget.onAddToCart(orderItem);  // Pass the correct options and quantities
+                Navigator.pop(context);  // Close the sheet
+              }
+            },
             orderItem: widget.orderItem,  // Pass the entire OrderItem object to the cart
           ),
-
         ],
       ),
     );
