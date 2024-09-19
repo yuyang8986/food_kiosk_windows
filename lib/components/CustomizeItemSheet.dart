@@ -131,7 +131,7 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
                 (ItemAddonOption option) => option.isPlaceholder(),
               );
 
-              if (hasPlaceholder) {
+              if (hasPlaceholder && orderItem.item.itemAddons.isNotEmpty) {
                 // Show alert dialog if any option is still the placeholder
                 showDialog(
                   context: context,
