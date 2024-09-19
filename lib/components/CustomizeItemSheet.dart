@@ -131,11 +131,11 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
                 (ItemAddonOption option) => option.isPlaceholder(),
               );
 
-              if (hasPlaceholder && orderItem.item.itemAddons.isNotEmpty) {
+              if (hasPlaceholder && widget.orderItem.item.itemAddons.isNotEmpty) {
                 // Show alert dialog if any option is still the placeholder
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) {
+                  builder: (BuildContext context) { 
                     return AlertDialog(
                       title: Text("Incomplete Selection"),
                       content: Text("Please select an option for all add-ons."),
