@@ -15,6 +15,8 @@ import 'package:mcdo_ui/models/orderItem.dart';
 import 'package:mcdo_ui/payment.dart';
 import 'package:mcdo_ui/printer_info.dart';
 import 'package:print_image_generate_tool/print_image_generate_tool.dart';
+import 'package:flutter/foundation.dart';
+
 
 class Navigation {
   static final router = FluroRouter();
@@ -138,20 +140,23 @@ class _MyChooserState extends State<Chooser> {
         ),
         position: position,
         onAddToCart: (OrderItem orderItem) {
-          setState(() {
-            int existingIndex = order.orderItems.indexWhere(
-              (oi) => oi.item.itemId == orderItem.item.itemId,
-            );
+  setState(() {
+    int existingIndex = order.orderItems.indexWhere(
+      (oi) =>
+          oi.item.itemId == orderItem.item.itemId &&
+          listEquals(oi.selectedItemAddonOptions, orderItem.selectedItemAddonOptions), // Add-ons comparison
+    );
 
-            if (existingIndex >= 0) {
-              order.orderItems[existingIndex].quantity += orderItem.quantity;
-            } else {
-              order.orderItems.add(orderItem);
-            }
+    if (existingIndex >= 0) {
+      order.orderItems[existingIndex].quantity += orderItem.quantity;
+    } else {
+      order.orderItems.add(orderItem);
+    }
 
-            calculateTotal();
-          });
-        },
+    calculateTotal();
+  });
+},
+
       ),
     );
   }
