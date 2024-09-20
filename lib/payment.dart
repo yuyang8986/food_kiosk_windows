@@ -34,187 +34,228 @@ class _MyPaymentState extends State<Payment> {
     type = Navigation.orderType!;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 124, 58, 1),
-      body: Stack(
-        children: <Widget>[
-          Positioned(
-            top: 40.0,
-            child: Container(
-              padding: EdgeInsets.only(left: 15.0, right: 15.0),
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Color.fromRGBO(43, 124, 58, 1),
+    body: Stack(
+      children: <Widget>[
+        Positioned(
+          top: 40.0,
+          child: Container(
+            padding: EdgeInsets.only(left: 15.0, right: 15.0),
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                BackButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(height: 90),
+            Center(
+              child: Image.asset(
+                'assets/logo.png',
+                height: 120.0,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(height: 15),
+            Container(
+              margin: const EdgeInsets.only(left: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text("My",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.white,
+                      )),
+                  Text("Order",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.white,
+                      )),
+                  SizedBox(height: 7),
+                  Text(widget.type,
+                      style: TextStyle(fontSize: 15, color: Colors.white)),
+                ],
+              ),
+            ),
+            SizedBox(height: 15),
+            Divider(
+              color: Colors.black26,
+              indent: 10,
+              endIndent: 10,
+              height: 5,
+            ),
+            Expanded(
+              child: ListView.separated(
+                itemCount: order.orderItems.length,
+                separatorBuilder: (context, index) => Divider(
+                  color: Colors.black26,
+                  indent: 10,
+                  endIndent: 10,
+                ),
+                itemBuilder: (context, position) {
+                  return listItem(position);
+                },
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: Column(
                 children: [
-                  BackButton(
-                    onPressed: () {
-                      Navigator.pop(context, true);
-                    },
+                  ButtonTheme(
+                    minWidth: 150.0,
+                    height: 80.0,
+                    child: ElevatedButton(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text("Place Order",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28,
+                                      color: Colors.white)),
+                            )
+                          ],
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 10),
+                        textStyle: TextStyle(
+                            fontSize: 24, color: Colors.white),
+                        backgroundColor:
+                            Color.fromARGB(255, 16, 42, 90),
+                      ),
+                      onPressed: () {
+                        // Check if any item has a quantity of 0
+                        bool hasZeroQuantity =
+                            order.orderItems.isEmpty ||
+                                order.orderItems.any(
+                                    (item) => item.quantity == 0);
+
+                        if (hasZeroQuantity) {
+                          // Show alert dialog if any item has a quantity of 0
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Invalid Order'),
+                                content: Text(
+                                    'There are items in the order with zero quantity. Please adjust the quantity or remove them before placing the order.'),
+                                actions: [
+                                  TextButton(
+                                    child: Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          // If no item has a quantity of 0, proceed with placing the order
+                          var helper = HttpClientHelper();
+                          var orderNumber;
+                          helper.createOrder(order).then((value) {
+                            orderNumber = value;
+
+                            // Generate receipt for preview
+                            PictureGeneratorProvider
+                                .instance
+                                .addPicGeneratorTask(
+                              PicGenerateTask<PrinterInfo>(
+                                tempWidget: ReceiptConstrainedBox(
+                                  ReceiptStyleWidget(
+                                    order: order,
+                                    orderNumber: orderNumber.toString(),
+                                  ),
+                                  pageWidth: 550,
+                                ),
+                                printTypeEnum:
+                                    PrintTypeEnum.receipt,
+                                params: widget.printerInfo,
+                              ),
+                            );
+
+                            // Navigate to OrderConfirmation screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    OrderConfirmation(
+                                        orderNumber:
+                                            orderNumber.toString()),
+                              ),
+                            );
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Back Button Below Place Order Button
+                  ButtonTheme(
+                    minWidth: 180.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text("Go Back",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 30,
+                                      color: Colors.white)),
+                            )
+                          ],
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 10),
+                        textStyle: TextStyle(
+                            fontSize: 18, color: Colors.white),
+                        backgroundColor: const Color.fromARGB(255, 48, 43, 43),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(height: 90),
-              Center(
-                child: Image.asset(
-                  'assets/logo.png',
-                  height: 120.0,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(height: 15),
-              Container(
-                margin: const EdgeInsets.only(left: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("My",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: Colors.white,
-                        )),
-                    Text("Order",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: Colors.white,
-                        )),
-                    SizedBox(height: 7),
-                    Text(widget.type,
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ],
-                ),
-              ),
-              SizedBox(height: 15),
-              Divider(
-                color: Colors.black26,
-                indent: 10,
-                endIndent: 10,
-                height: 5,
-              ),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: order.orderItems.length,
-                  separatorBuilder: (context, index) => Divider(
-                    color: Colors.black26,
-                    indent: 10,
-                    endIndent: 10,
-                  ),
-                  itemBuilder: (context, position) {
-                    return listItem(position);
-                  },
-                ),
-              ),
-              SizedBox(height: 10),
-              Center(
-                child: ButtonTheme(
-                  minWidth: 150.0,
-                  height: 80.0,
-                  child: ElevatedButton(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          FittedBox(
-                            fit: BoxFit.fitWidth,
-                            child: Text("Place Order",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 30,
-                                    color: Colors.white)),
-                          )
-                        ],
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                      textStyle: TextStyle(fontSize: 24, color: Colors.white),
-                      backgroundColor: Color.fromARGB(255, 16, 42, 90),
-                    ),
-                    onPressed: () {
-                      // Check if any item has a quantity of 0
-                      bool hasZeroQuantity = order.orderItems.isEmpty ||
-                          order.orderItems.any((item) => item.quantity == 0);
-
-                      if (hasZeroQuantity) {
-                        // Show alert dialog if any item has a quantity of 0
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Invalid Order'),
-                              content: Text(
-                                  'There are items in the order with zero quantity. Please adjust the quantity or remove them before placing the order.'),
-                              actions: [
-                                TextButton(
-                                  child: Text('OK'),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      } else {
-                        // If no item has a quantity of 0, proceed with placing the order
-                        var helper = HttpClientHelper();
-                        var orderNumber;
-                        helper.createOrder(order).then((value) {
-                          orderNumber = value;
-
-                          // Generate receipt for preview
-                          PictureGeneratorProvider.instance.addPicGeneratorTask(
-                            PicGenerateTask<PrinterInfo>(
-                              tempWidget: ReceiptConstrainedBox(
-                                ReceiptStyleWidget(
-                                  order: order,
-                                  orderNumber: orderNumber.toString(),
-                                ),
-                                pageWidth: 550,
-                              ),
-                              printTypeEnum: PrintTypeEnum.receipt,
-                              params: widget.printerInfo,
-                            ),
-                          );
-
-                          // Navigate to OrderConfirmation screen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderConfirmation(
-                                  orderNumber: orderNumber.toString()),
-                            ),
-                          );
-                        });
-                      }
-                    },
-
-                    // style: ElevatedButton.styleFrom(
-                    //   padding: EdgeInsets.symmetric(vertical: 15),
-                    //   textStyle: TextStyle(fontSize: 24),
-                    //   backgroundColor: Colors.purple,
-                    // ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 70),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+            SizedBox(height: 70),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   Widget listItem(int position) {
     return Row(
