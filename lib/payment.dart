@@ -32,6 +32,7 @@ class _MyPaymentState extends State<Payment> {
     super.initState();
     order = Navigation.currentOrder!;
     type = Navigation.orderType!;
+    order.orderType = type;
   }
 
 @override
