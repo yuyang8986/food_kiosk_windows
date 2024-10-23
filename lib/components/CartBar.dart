@@ -5,15 +5,16 @@ class CartBar extends StatelessWidget {
   final VoidCallback onViewCartPressed;
   final bool isEnabled;
 
-  CartBar(
-      {required this.isEnabled,
-      required this.total,
-      required this.onViewCartPressed});
+  CartBar({
+    required this.isEnabled,
+    required this.total,
+    required this.onViewCartPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical:5),
       decoration: BoxDecoration(
         color: Colors.orange,
         borderRadius: BorderRadius.only(
@@ -25,7 +26,7 @@ class CartBar extends StatelessWidget {
             color: Colors.black.withOpacity(0.1),
             spreadRadius: 0,
             blurRadius: 10,
-            offset: Offset(0, -2), // changes position of shadow
+            offset: Offset(0, -2),
           ),
         ],
       ),
@@ -36,29 +37,31 @@ class CartBar extends StatelessWidget {
             text: TextSpan(
               children: [
                 WidgetSpan(
-                  child:
-                      Icon(Icons.shopping_cart, color: Colors.white, size: 24),
+                  child: Icon(Icons.shopping_cart, color: Colors.white, size: 24),
                 ),
                 TextSpan(
-                    text: " AUD $total",
-                    style: TextStyle(color: Colors.white, fontSize: 20)),
+                  text: " AUD $total",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: onViewCartPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+          Container(
+            height: 150, // This height will now be applied correctly
+            child: ElevatedButton(
+              onPressed: onViewCartPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isEnabled ? Colors.white : Colors.black.withOpacity(0.2),
+                fixedSize: Size(200, 150), // Set both width and height
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
-            ),
-            child: Text(
-              "VIEW CART",
-              style: TextStyle(color: Colors.black.withOpacity(.9)),
-            ),
-          ),
+              child: Text(
+                "VIEW CART",
+                style: TextStyle(color: Colors.black.withOpacity(.9), fontSize: 30),
+              ),
+            ),)
         ],
       ),
     );

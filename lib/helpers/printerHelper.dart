@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 // import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
@@ -7,56 +8,118 @@ import 'package:esc_pos_utils/src/capability_profile.dart';
 import 'package:esc_pos_utils/src/enums.dart';
 // import 'package:esc_pos_utils_plus/esc_pos_utils.dart' as escu;
 import 'package:esc_pos_utils/esc_pos_utils.dart' as escu;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_printer_plus/flutter_printer_plus.dart';
+import 'package:mcdo_ui/components/label_constraint_box.dart';
+import 'package:mcdo_ui/components/receipt_constraint_box.dart';
+import 'package:mcdo_ui/models/order.dart';
 
-import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
+// import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
+// import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
+import 'package:mcdo_ui/printer_info.dart';
+import 'package:print_image_generate_tool/print_image_generate_tool.dart';
 // import 'package:printing/printing.dart';
 // import 'package:usb_thermal_printer_web/usb_thermal_printer_web.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 
 class PrinterHelper {
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  // FlutterBlue flutterBlue = FlutterBlue.instance;
   static escp.NetworkPrinter? printer = null;
   static bool connected = false;
   static String printerIP = '';
 
-  static void setPrinterIP(ip)
-  {
+  static PrinterInfo? usbPrinter = null;
+  static Order? currentOrderToPrinter;
+
+  static getusbDeviceslist() async {
+    List results = [];
+    // results = await FlutterUsbPrinter.getUSBDeviceList();
+// 返回 Future<List<UsbDeviceInfo>>
+    results = await FlutterPrinterFinder.queryUsbPrinter();
+    print(" length: ${results.length}");
+  }
+
+//  performCommand(
+//   ) {
+//     // 预览小票
+//     PictureGeneratorProvider.instance.addPicGeneratorTask(
+//           PicGenerateTask<PrinterInfo>(
+//             tempWidget: const ReceiptConstrainedBox(
+//               ReceiptStyleWidget(),
+//               pageWidth: 550,
+//             ),
+//             printTypeEnum: PrintTypeEnum.receipt,
+//             params: usbPrinter,
+//           ),
+//         );
+//   }
+
+  // static FlutterUsbPrinter flutterUsbPrinter = FlutterUsbPrinter();
+  // Future<bool> connectUSB(int vendorId, int productId) async {
+  //   bool? returned = false;
+  //   try {
+  //     returned = await flutterUsbPrinter.connect(vendorId, productId);
+  //   } on PlatformException {
+  //     //response = 'Failed to get platform version.';
+  //   }
+  //   if (returned!) {
+  //     Map<String, dynamic> printerInfo = {
+  //       "vendorId": vendorId,
+  //       "productId": productId,
+  //     };
+  //     // await LocalDb().storeUsbPrinter(printerInfo);
+  //   }
+  //   return returned;
+  // }
+
+  static void setPrinterIP(ip) {
     printerIP = ip;
   }
 
   static Future<bool> connect(printerIp) async {
-   if(!connected)
-   {
-     final profile = await CapabilityProfile.load();
-    printer = escp.NetworkPrinter(PaperSize.mm80, profile);
+    if (!connected) {
+      final profile = await CapabilityProfile.load();
+      printer = escp.NetworkPrinter(PaperSize.mm80, profile);
 
-    final escp.PosPrintResult res =
-        await printer!.connect(printerIp, port: 9100);
-    
-    if(res == escp.PosPrintResult.success)
-    {
-      connected = true;
+      final escp.PosPrintResult res =
+          await printer!.connect(printerIp, port: 9100);
+
+      if (res == escp.PosPrintResult.success) {
+        connected = true;
+      }
+
+      return res == escp.PosPrintResult.success;
     }
-
-    return res == escp.PosPrintResult.success;
-   }
-   return true;
+    return true;
   }
+
+//   printByUSB() async {
+//     try {
+//       var data = Uint8List.fromList(
+//           utf8.encode(" Hello world Testing ESC POS printer..."));
+//       await flutterUsbPrinter.write(data);
+//       // await FlutterUsbPrinter.printRawData("text");
+//       // await FlutterUsbPrinter.printText("Testing ESC POS printer...");
+//     } on PlatformException {
+//       //response = 'Failed to get platform version.';
+//     }
+// }
 
   Future<void> printReceipt(
       String printerIp, List<OrderItem> items, double total) async {
     try {
       // if (printer == null) {
-        // await connect(printerIp);
+      // await connect(printerIp);
       // }
       // if (printer != null) {
-        // final receiptData = await _generateReceipt(items, 100);
-        //await printer.rawBytes(receiptData);
-        await testReceipt(items, total);
-        // printer!.disconnect();
+      // final receiptData = await _generateReceipt(items, 100);
+      //await printer.rawBytes(receiptData);
+      await testReceipt(items, total);
+      // printer!.disconnect();
       // } else {
-        // print('Could not connect to printer: ');
+      // print('Could not connect to printer: ');
       // }
     } catch (e) {
       print(e);
@@ -128,102 +191,102 @@ class PrinterHelper {
   // }
 
   // Scan for available Bluetooth printers
-  Future<List<BluetoothDevice>> scanForPrinters() async {
-    List<BluetoothDevice> devices = [];
+  // Future<List<BluetoothDevice>> scanForPrinters() async {
+  //   List<BluetoothDevice> devices = [];
 
-    try {
-      flutterBlue.startScan(timeout: Duration(seconds: 10));
+  //   try {
+  //     flutterBlue.startScan(timeout: Duration(seconds: 10));
 
-      flutterBlue.scanResults.listen((results) {
-        for (ScanResult r in results) {
-          if (!devices.contains(r.device)) {
-            devices.add(r.device);
-          }
-        }
-      });
+  //     flutterBlue.scanResults.listen((results) {
+  //       for (ScanResult r in results) {
+  //         if (!devices.contains(r.device)) {
+  //           devices.add(r.device);
+  //         }
+  //       }
+  //     });
 
-      await Future.delayed(Duration(seconds: 10));
-      flutterBlue.stopScan();
-    } catch (e) {
-      print('Error scanning for printers: $e');
-    }
+  //     await Future.delayed(Duration(seconds: 10));
+  //     // flutterBlue.stopScan();
+  //   } catch (e) {
+  //     print('Error scanning for printers: $e');
+  //   }
 
-    return devices;
-  }
+  //   return devices;
+  // }
 
   // Connect to a Bluetooth printer
-  Future<BluetoothDevice> connectToPrinter(String deviceId) async {
-    BluetoothDevice? device;
+  // Future<BluetoothDevice> connectToPrinter(String deviceId) async {
+  //   BluetoothDevice? device;
 
-    try {
-      device = await flutterBlue.connectedDevices.then(
-          (devices) => devices.firstWhere((d) => d.id.toString() == deviceId));
+  //   try {
+  //     device = await flutterBlue.connectedDevices.then(
+  //         (devices) => devices.firstWhere((d) => d.id.toString() == deviceId));
 
-      if (device == null) {
-        List<BluetoothDevice> devices = await flutterBlue.scanResults
-            .map((results) => results.map((result) => result.device).toList())
-            .firstWhere(
-                (devices) => devices.any((d) => d.id.toString() == deviceId),
-                orElse: () => []);
+  //     if (device == null) {
+  //       List<BluetoothDevice> devices = await flutterBlue.scanResults
+  //           .map((results) => results.map((result) => result.device).toList())
+  //           .firstWhere(
+  //               (devices) => devices.any((d) => d.id.toString() == deviceId),
+  //               orElse: () => []);
 
-        device = devices.firstWhere((d) => d.id.toString() == deviceId);
-      }
+  //       device = devices.firstWhere((d) => d.id.toString() == deviceId);
+  //     }
 
-      await device.connect();
-      await Future.delayed(Duration(seconds: 2));
-    } catch (e) {
-      print('Error connecting to printer: $e');
-      rethrow;
-    }
+  //     await device.connect();
+  //     await Future.delayed(Duration(seconds: 2));
+  //   } catch (e) {
+  //     print('Error connecting to printer: $e');
+  //     rethrow;
+  //   }
 
-    return device!;
-  }
+  //   return device!;
+  // }
 
   //Print receipt for food order
-  Future<void> printReceipt2(
-      String deviceId, List<Map<String, dynamic>> items, double total) async {
-    BluetoothDevice device;
+  // Future<void> printReceipt2(
+  //     String deviceId, List<Map<String, dynamic>> items, double total) async {
+  //   BluetoothDevice device;
 
-    try {
-      final profile = await CapabilityProfile.load();
-      final printer = escp.NetworkPrinter(PaperSize.mm80, profile);
+  //   try {
+  //     final profile = await CapabilityProfile.load();
+  //     final printer = escp.NetworkPrinter(PaperSize.mm80, profile);
 
-      final escp.PosPrintResult res =
-          await printer.connect("192.168.1.30", port: 9100);
+  //     final escp.PosPrintResult res =
+  //         await printer.connect("192.168.1.30", port: 9100);
 
-      if (res == escp.PosPrintResult.success) {
-        // final receiptData = _generateReceipt(items);
-        // await printer.(receiptData);
-        //printer.disconnect();
-      } else {
-        print('Could not connect to printer: $res');
-      }
+  //     if (res == escp.PosPrintResult.success) {
+  //       // final receiptData = _generateReceipt(items);
+  //       // await printer.(receiptData);
+  //       //printer.disconnect();
+  //     } else {
+  //       print('Could not connect to printer: $res');
+  //     }
 
-      //final profile = await CapabilityProfile.load();
-      //final generator = Generator(PaperSize.mm80, profile);
-      //final receiptData = await _generateReceipt(generator, items, total);
+  //     //final profile = await CapabilityProfile.load();
+  //     //final generator = Generator(PaperSize.mm80, profile);
+  //     //final receiptData = await _generateReceipt(generator, items, total);
 
-      // List<BluetoothService> services = await device.discoverServices();
-      // BluetoothService? service = services.firstWhere((s) => s.uuid.toString() == "your-service-uuid");
+  //     // List<BluetoothService> services = await device.discoverServices();
+  //     // BluetoothService? service = services.firstWhere((s) => s.uuid.toString() == "your-service-uuid");
 
-      // if (service != null) {
-      //   BluetoothCharacteristic? characteristic = service.characteristics
-      //       .firstWhere((c) => c.uuid.toString() == "your-characteristic-uuid");
+  //     // if (service != null) {
+  //     //   BluetoothCharacteristic? characteristic = service.characteristics
+  //     //       .firstWhere((c) => c.uuid.toString() == "your-characteristic-uuid");
 
-      //   if (characteristic != null) {
-      //     await characteristic.write(receiptData, withoutResponse: false);
-      //   }
-      // }
+  //     //   if (characteristic != null) {
+  //     //     await characteristic.write(receiptData, withoutResponse: false);
+  //     //   }
+  //     // }
 
-      //final printer = NetworkPrinter(PaperSize.mm80, profile);
+  //     //final printer = NetworkPrinter(PaperSize.mm80, profile);
 
-      //final PosPrintResult res = await printer.connect(printerIp, port: 9100);
-    } catch (e) {
-      print('Error printing receipt: $e');
-    } finally {
-      // device.disconnect();
-    }
-  }
+  //     //final PosPrintResult res = await printer.connect(printerIp, port: 9100);
+  //   } catch (e) {
+  //     print('Error printing receipt: $e');
+  //   } finally {
+  //     // device.disconnect();
+  //   }
+  // }
 
   //Generate receipt content
   // Future<List<int>> _generateReceipt2(Generator generator,

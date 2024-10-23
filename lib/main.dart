@@ -1,34 +1,76 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
-import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
+// import 'package:flutter/rendering.dart';
+import 'package:flutter_printer_plus/flutter_printer_plus.dart';
+// import 'package:flutter_blue_plugin/flutter_blue_plugin.dart';
+// import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
 import 'package:mcdo_ui/helpers/printerHelper.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:mcdo_ui/printerConnectionpage.dart';
+import 'package:mcdo_ui/printer_info.dart';
+import 'package:print_image_generate_tool/print_image_generate_tool.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:window_manager/window_manager.dart';
 import 'chooser.dart';
-import 'package:flutter/services.dart';
-import 'animationTest.dart';
+// import 'animationTest.dart';
+import 'package:android_usb_printer/android_usb_printer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(
+    RestartWidget(
+      child: MyApp(),
+    ),
+  );
   // Must add this line.
-  await windowManager.ensureInitialized();
+  // await windowManager.ensureInitialized();
 
   // Use it only after calling `hiddenWindowAtLaunch`
-  windowManager.waitUntilReadyToShow().then((_) async {
-    // Hide window title bar
-    // await windowManager.setTitleBarStyle('hidden');
-    await windowManager.setFullScreen(true);
-    await windowManager.center();
-    await windowManager.show();
-    await windowManager.setSkipTaskbar(false);
-  });
+  // windowManager.waitUntilReadyToShow().then((_) async {
+  //   // Hide window title bar
+  //   // await windowManager.setTitleBarStyle('hidden');
+  //   await windowManager.setFullScreen(true);
+  //   await windowManager.center();
+  //   await windowManager.show();
+  //   await windowManager.setSkipTaskbar(false);
+  // });
 
-  final supported = FlutterWebBluetooth.instance.isBluetoothApiSupported;
-  print("web printer" + supported.toString());
+  // final supported = FlutterWebBluetooth.instance.isBluetoothApiSupported;
+  // print("web printer" + supported.toString());
   // A stream that says if a bluetooth adapter is available to the browser.
-  final available = FlutterWebBluetooth.instance.isAvailable;
+  // final available = FlutterWebBluetooth.instance.isAvailable;
+}
+
+class RestartWidget extends StatefulWidget {
+  RestartWidget({required this.child});
+
+  final Widget child;
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_RestartWidgetState>()?.restartApp();
+  }
+
+  @override
+  _RestartWidgetState createState() => _RestartWidgetState();
+}
+
+class _RestartWidgetState extends State<RestartWidget> {
+  Key key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: key,
+      child: widget.child,
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -36,7 +78,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RootPage(),  // Set RootPage as the home
+      home: RootPage(), // Set RootPage as the home
     );
   }
 }
@@ -79,16 +121,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   PrinterHelper _printerHelper = PrinterHelper();
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  // FlutterBlue flutterBlue = FlutterBlue.instance;
   List _devices = [];
   String? _selectedDeviceId;
 
-  Future<void> _scanForPrinters() async {
-    var devices = await _printerHelper.scanForPrinters();
-    setState(() {
-      _devices = devices;
-    });
-  }
+  var selectedPrinterInfo;
+
+  // Future<void> _scanForPrinters() async {
+  //   var devices = await _printerHelper.scanForPrinters();
+  //   setState(() {
+  //     _devices = devices;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -108,10 +152,14 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Settings"),
-          content: TextField(
-            controller: _controller,
-            decoration: InputDecoration(hintText: "Enter your text"),
-          ),
+           content:
+           // PrintImageGenerateWidget(
+          //   contentBuilder: (context) {
+          //     return 
+              Text("Scan USB printers")
+            // },
+            // onPictureGenerated: _onPictureGenerated, //下面说明
+          ,
           actions: <Widget>[
             TextButton(
               child: Text("Cancel"),
@@ -120,11 +168,15 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             TextButton(
-              child: Text("OK"),
-              onPressed: () {
-                print("Entered text: ${_controller.text}");
-                PrinterHelper.setPrinterIP(_controller.text);
-                Navigator.of(context).pop();
+              child: Text("Scan"),
+              onPressed: () async {
+                var printerInfo = await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PrinterListPage(SearchType.usb),
+                  ),
+                );
+
+                selectedPrinterInfo = printerInfo;
               },
             ),
           ],
@@ -136,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(239, 236, 222, 1),
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           Positioned(
@@ -163,11 +215,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Image.asset(
-                  'assets/logo.png',
-                  height: 140.0,
-                  fit: BoxFit.cover,
-                ),
                 Row(
                   children: <Widget>[
                     Spacer(flex: 5),
@@ -175,7 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       minWidth: 130.0,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          padding: MaterialStateProperty.all(EdgeInsets.all(30.0)),
+                          padding:
+                              MaterialStateProperty.all(EdgeInsets.all(30.0)),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -185,9 +233,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 30, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Dine In")));
+                        onPressed: () async {
+                          // First, check if selectedPrinterInfo is null or empty
+                          if (selectedPrinterInfo == null) {
+                            // Try to fetch the printer info from local storage
+                            PrinterInfo? storedPrinterInfo =
+                                await getPrinterInfoFromStorage();
+
+                            if (storedPrinterInfo != null) {
+                              // If found in local storage, assign it to selectedPrinterInfo
+                              selectedPrinterInfo = storedPrinterInfo;
+                            }
+                          }
+
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Chooser(
+                                    type: "Dine In",
+                                    printerInfo: selectedPrinterInfo,
+                                  )));
                         },
                       ),
                     ),
@@ -196,7 +259,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       minWidth: 180.0,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          padding: MaterialStateProperty.all(EdgeInsets.all(30.0)),
+                          padding:
+                              MaterialStateProperty.all(EdgeInsets.all(30.0)),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -206,9 +270,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 30, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => Chooser(type: "Take Away")));
+                        onPressed: ()async {
+                         // First, check if selectedPrinterInfo is null or empty
+                          if (selectedPrinterInfo == null) {
+                            // Try to fetch the printer info from local storage
+                            PrinterInfo? storedPrinterInfo =
+                                await getPrinterInfoFromStorage();
+
+                            if (storedPrinterInfo != null) {
+                              // If found in local storage, assign it to selectedPrinterInfo
+                              selectedPrinterInfo = storedPrinterInfo;
+                            }
+                          }
+
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Chooser(
+                                    type: "Dine In",
+                                    printerInfo: selectedPrinterInfo,
+                                  )));
                         },
                       ),
                     ),
@@ -230,5 +309,50 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+//Function to save PrinterInfo object to local storage
+  Future<void> savePrinterInfoToStorage(PrinterInfo printerInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Prepare data to store in SharedPreferences
+    Map<String, dynamic> printerInfoMap = {
+      'ip': printerInfo.ip,
+      'usbDevice': printerInfo.usbDevice != null
+          ? {
+              'productName': printerInfo.usbDevice!.productName,
+              'vId': printerInfo.usbDevice!.vId,
+              'pId': printerInfo.usbDevice!.pId,
+              'sId': printerInfo.usbDevice!.sId,
+            }
+          : null,
+    };
+
+    // Convert the map to a JSON string and store it
+    String printerInfoJson = jsonEncode(printerInfoMap);
+    await prefs.setString('selectedPrinterInfo', printerInfoJson);
+  }
+
+// Function to get PrinterInfo object from local storage
+  Future<PrinterInfo?> getPrinterInfoFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? printerInfoJson = prefs.getString('selectedPrinterInfo');
+
+    if (printerInfoJson != null && printerInfoJson.isNotEmpty) {
+      Map<String, dynamic> printerInfoMap = jsonDecode(printerInfoJson);
+
+      // Recreate PrinterInfo object
+      if (printerInfoMap['ip'] != null) {
+        return PrinterInfo.fromIp(printerInfoMap['ip']);
+      } else if (printerInfoMap['usbDevice'] != null) {
+        return PrinterInfo.fromUsbDevice(UsbDeviceInfo(
+          productName: printerInfoMap['usbDevice']['productName'],
+          vId: printerInfoMap['usbDevice']['vId'],
+          pId: printerInfoMap['usbDevice']['pId'],
+          sId: printerInfoMap['usbDevice']['sId'],
+        ));
+      }
+    }
+    return null;
   }
 }

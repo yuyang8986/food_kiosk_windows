@@ -1,18 +1,14 @@
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:mcdo_ui/components/TotalBar.dart';
-import 'package:mcdo_ui/item.dart';
 import 'package:mcdo_ui/models/item-addon-option.dart';
-import 'package:mcdo_ui/models/item-addon.dart';
-import 'package:mcdo_ui/models/item.dart';
 import 'package:mcdo_ui/models/orderItem.dart';
 
 class CustomizeItemSheet extends StatefulWidget {
   final OrderItem orderItem;
   final int position;
-  final Function(Item) onAddToCart;
+  final Function(OrderItem) onAddToCart;
 
   const CustomizeItemSheet({
     Key? key,
@@ -26,8 +22,17 @@ class CustomizeItemSheet extends StatefulWidget {
 }
 
 class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
+
   @override
   Widget build(BuildContext context) {
+    ItemAddonOption placeholderItemAddonOption = ItemAddonOption(
+      optionId: -1, // Use an ID that does not conflict with actual addon IDs
+      optionName: 'Select Option', // Default label
+      optionDescription: 'No description',
+      price: 0.0,
+      itemAddonId: -1,
+    );
+
     return Container(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -69,32 +74,49 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
             SingleChildScrollView(
               child: Column(
                 children: widget.orderItem.item.itemAddons.map((ia) {
+                  if (ia.itemAddonOptions.isEmpty) {
+                    return ListTile(
+                      title: Text(ia.itemAddonName),
+                      subtitle: Text('No options available'),
+                    );
+                  }
+
+                  List<ItemAddonOption> addonOptionsWithPlaceholder = [
+                    ItemAddonOption.placeholder,
+                    ...ia.itemAddonOptions,
+                  ];
+
+                  ItemAddonOption? selectedOption =
+                      widget.orderItem.selectedItemAddonOptions.firstWhere(
+                    (ItemAddonOption iao) => iao.itemAddonId == ia.itemAddonId,
+                    orElse: () => addonOptionsWithPlaceholder.first,
+                  );
+
                   return ListTile(
                     title: Text(ia.itemAddonName),
                     trailing: DropdownButton<ItemAddonOption>(
-                      value: widget.orderItem.selectedItemAddonOptions.isEmpty
-                          ? null
-                          : widget.orderItem.selectedItemAddonOptions
-                              .firstWhere(
-                              (ItemAddonOption iao) =>
-                                  iao.itemAddonId == ia.itemAddonId,
-                            ), // handle case where no match is found
-                      items: ia.itemAddonOptions.map((ItemAddonOption iao) {
+                      value: selectedOption,
+                      items: addonOptionsWithPlaceholder
+                          .map((ItemAddonOption iao) {
                         return DropdownMenuItem<ItemAddonOption>(
                           value: iao,
                           child: Text(iao.optionName),
                         );
                       }).toList(),
                       onChanged: (ItemAddonOption? newValue) {
-                        setState(() {
-                          if (newValue != null) {
+                        if (newValue != null &&
+                            newValue.optionName != 'Please choose') {
+                          setState(() {
                             widget.orderItem.selectedItemAddonOptions
-                                .removeWhere((ItemAddonOption iao) =>
-                                    iao.itemAddonId == ia.itemAddonId);
+                                .removeWhere(
+                              (ItemAddonOption iao) =>
+                                  iao.itemAddonId == ia.itemAddonId,
+                            );
+
                             widget.orderItem.selectedItemAddonOptions
                                 .add(newValue);
-                          }
-                        });
+                          });
+                        }
                       },
                     ),
                   );
@@ -103,8 +125,38 @@ class _CustomizeItemSheetState extends State<CustomizeItemSheet> {
             ),
           TotalBar(
             totalPrice: widget.orderItem.getTotalPrice(),
-            onAddToCart: widget.onAddToCart,
-            item: widget.orderItem.item,
+            onAddToCart: (OrderItem orderItem) {
+              // Check if any selected option is the placeholder
+              bool hasPlaceholder = orderItem.selectedItemAddonOptions.isEmpty || orderItem.selectedItemAddonOptions.any(
+                (ItemAddonOption option) => option.isPlaceholder(),
+              );
+
+              if (hasPlaceholder && widget.orderItem.item.itemAddons.isNotEmpty && orderItem.item.itemCategoryId != 1) {
+                // Show alert dialog if any option is still the placeholder
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) { 
+                    return AlertDialog(
+                      title: Text("Incomplete Selection"),
+                      content: Text("Please select an option for all add-ons."),
+                      actions: [
+                        TextButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                // If everything is valid, proceed to add to cart
+                widget.onAddToCart(orderItem);  // Pass the correct options and quantities
+                Navigator.pop(context);  // Close the sheet
+              }
+            },
+            orderItem: widget.orderItem,  // Pass the entire OrderItem object to the cart
           ),
         ],
       ),

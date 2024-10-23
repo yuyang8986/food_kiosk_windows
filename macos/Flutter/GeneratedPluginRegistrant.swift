@@ -5,14 +5,12 @@
 import FlutterMacOS
 import Foundation
 
-import flutter_blue_plugin
-import screen_retriever
+import path_provider_foundation
+import r_get_ip
 import shared_preferences_foundation
-import window_manager
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  FlutterBluePlugin.register(with: registry.registrar(forPlugin: "FlutterBluePlugin"))
-  ScreenRetrieverPlugin.register(with: registry.registrar(forPlugin: "ScreenRetrieverPlugin"))
+  PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
+  RGetIpPlugin.register(with: registry.registrar(forPlugin: "RGetIpPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
-  WindowManagerPlugin.register(with: registry.registrar(forPlugin: "WindowManagerPlugin"))
 }

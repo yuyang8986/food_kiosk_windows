@@ -13,6 +13,15 @@ class ItemAddonOption {
     required this.itemAddonId,
   });
 
+  // Add a static placeholder option
+  static final ItemAddonOption placeholder = ItemAddonOption(
+    optionId: -1, // Using a negative ID for the placeholder
+    optionName: 'Please choose',
+    optionDescription: '',
+    price: 0.0,
+    itemAddonId: -1,
+  );
+
   factory ItemAddonOption.fromJson(Map<String, dynamic> json) {
     return ItemAddonOption(
       optionId: json['optionId'],
@@ -31,5 +40,16 @@ class ItemAddonOption {
       'price': price,
       'itemAddonId': itemAddonId,
     };
+  }
+
+  @override
+  String toString() {
+    return 'ItemAddonOption(optionId: $optionId, optionName: $optionName, price: $price)';
+  }
+
+ bool isPlaceholder() {
+
+    return this.optionId == -1;
+
   }
 }
