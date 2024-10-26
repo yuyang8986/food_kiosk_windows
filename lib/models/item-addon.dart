@@ -4,14 +4,14 @@ class ItemAddon {
   int itemAddonId;
   String itemAddonName;
   String itemAddonDescription;
-  int itemId;
+  int? itemId;
   List<ItemAddonOption> itemAddonOptions;
 
   ItemAddon({
     required this.itemAddonId,
     required this.itemAddonName,
     required this.itemAddonDescription,
-    required this.itemId,
+    this.itemId,
     required this.itemAddonOptions,
   });
 
